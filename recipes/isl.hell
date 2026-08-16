@@ -1,0 +1,14 @@
+package "isl" version "0.26" {
+    description "Integer Set Library for GCC loop optimizations"
+    source "https://libisl.sourceforge.io/isl-0.26.tar.xz"
+    depends "gmp"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

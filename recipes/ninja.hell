@@ -1,0 +1,13 @@
+package "ninja" version "1.12.1" {
+    description "Ninja - a small build system with speed"
+    source "https://github.com/ninja-build/ninja/archive/refs/tags/v1.12.1.tar.gz"
+
+    build {
+        run "cmake -B build -DCMAKE_BUILD_TYPE=Release"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "install -Dm755 build/ninja $HELL_ROOT/usr/bin/ninja"
+    }
+}

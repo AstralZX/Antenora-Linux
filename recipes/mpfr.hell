@@ -1,0 +1,14 @@
+package "mpfr" version "4.2.1" {
+    description "Multiple Precision Floating-Point Reliable library"
+    source "https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.xz"
+    depends "gmp"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

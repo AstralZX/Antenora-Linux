@@ -1,0 +1,13 @@
+package "libmnl" version "1.0.5" {
+    description "Minimal netlink library"
+    source "https://netfilter.org/projects/libmnl/files/libmnl-1.0.5.tar.bz2"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

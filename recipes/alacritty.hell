@@ -1,0 +1,12 @@
+package "alacritty" version "0.13.2" {
+    description "Alacritty - a fast, cross-platform terminal emulator"
+    source "https://github.com/alacritty/alacritty/archive/refs/tags/v0.13.2.tar.gz"
+
+    build {
+        run "cargo build --release --no-default-features --features=wayland"
+    }
+
+    install {
+        run "install -Dm755 target/release/alacritty $HELL_ROOT/usr/bin/alacritty"
+    }
+}

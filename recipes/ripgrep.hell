@@ -1,0 +1,12 @@
+package "ripgrep" version "14.1.0" {
+    description "ripgrep - recursively search directories for a regex"
+    source "https://github.com/BurntSushi/ripgrep/archive/refs/tags/14.1.0.tar.gz"
+
+    build {
+        run "cargo build --release --locked"
+    }
+
+    install {
+        run "install -Dm755 target/release/rg $HELL_ROOT/usr/bin/rg"
+    }
+}

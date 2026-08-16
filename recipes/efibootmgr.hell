@@ -1,0 +1,13 @@
+package "efibootmgr" version "18" {
+    description "Tool to manage UEFI boot entries"
+    source "https://github.com/rhboot/efibootmgr/archive/refs/tags/18.tar.gz"
+    depends "efivar"
+
+    build {
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

@@ -1,0 +1,14 @@
+package "execline" version "2.9.5.1" {
+    description "Execline - a non-interactive scripting language"
+    source "https://skarnet.org/software/execline/execline-2.9.5.1.tar.gz"
+    depends "skalibs"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

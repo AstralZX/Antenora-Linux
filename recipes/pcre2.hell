@@ -1,0 +1,13 @@
+package "pcre2" version "10.44" {
+    description "Perl-compatible regular expression library"
+    source "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz"
+
+    build {
+        run "./configure --prefix=/usr --enable-unicode"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

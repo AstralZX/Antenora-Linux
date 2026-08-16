@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Antenora Linux contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package dante
 
 import (
@@ -48,17 +51,18 @@ func (d *Dante) loadRecord(name string) (*InstalledRecord, error) {
 }
 
 // Install resolves and installs a package and all of its dependencies.
-func (d *Dante) Install(name string) error {
+// When preferDur is true, DUR packages are preferred over official ones.
+func (d *Dante) Install(name string, preferDur bool) error {
 	if err := d.BuildIndex(); err != nil {
 		return err
 	}
-	order, err := d.Resolve(name)
+	order, err := d.Resolve(name, preferDur)
 	if err != nil {
 		return err
 	}
 	fmt.Printf(":: Resolved %d package(s): %v\n", len(order), order)
 	for _, n := range order {
-		if err := d.installOne(n); err != nil {
+		if err := d.installOne(n, preferDur); err != nil {
 			return fmt.Errorf("installing %s: %w", n, err)
 		}
 	}
@@ -66,8 +70,8 @@ func (d *Dante) Install(name string) error {
 	return nil
 }
 
-func (d *Dante) installOne(name string) error {
-	pi, ok := d.Index[name]
+func (d *Dante) installOne(name string, preferDur bool) error {
+	pi, _, ok := d.Lookup(name, preferDur)
 	if !ok {
 		return fmt.Errorf("package %q not found", name)
 	}

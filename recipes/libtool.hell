@@ -1,0 +1,14 @@
+package "libtool" version "2.4.7" {
+    description "Libtool - generic shared library support"
+    source "https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz"
+    depends "automake"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

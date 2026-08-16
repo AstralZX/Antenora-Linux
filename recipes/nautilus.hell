@@ -1,0 +1,14 @@
+package "nautilus" version "46.2" {
+    description "Nautilus - the GNOME file manager"
+    source "https://download.gnome.org/sources/nautilus/46/nautilus-46.2.tar.xz"
+    depends "gnome-shell"
+
+    build {
+        run "meson setup build --prefix=/usr"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

@@ -1,0 +1,14 @@
+package "tmux" version "3.4" {
+    description "tmux - terminal multiplexer"
+    source "https://github.com/tmux/tmux/releases/download/3.4/tmux-3.4.tar.gz"
+    depends "ncurses" "libevent"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

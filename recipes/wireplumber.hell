@@ -1,0 +1,14 @@
+package "wireplumber" version "0.5.5" {
+    description "WirePlumber - PipeWire session and policy manager"
+    source "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/0.5.5/wireplumber-0.5.5.tar.gz"
+    depends "pipewire" "elogind"
+
+    build {
+        run "meson setup build --prefix=/usr -Dsystemd=disabled"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

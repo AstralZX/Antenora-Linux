@@ -1,0 +1,19 @@
+package "curl" version "8.8.0" {
+    description "curl - command line URL transfer tool"
+    source "https://github.com/curl/curl/releases/download/8.8.0/curl-8.8.0.tar.xz"
+    depends "openssl" "zlib" "ca-certificates"
+
+    build {
+        run "./configure --prefix=/usr --with-openssl --with-zlib"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+    binary "https://cdn.antenora.org/packages/curl-8.8.0-x86_64.db" {
+        sha256 "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0"
+        size "2.4MB"
+    }
+}

@@ -1,0 +1,14 @@
+package "hyprland" version "0.41.2" {
+    description "Hyprland - a dynamic tiling Wayland compositor"
+    source "https://github.com/hyprwm/Hyprland/archive/refs/tags/v0.41.2.tar.gz"
+    depends "wayland" "wlroots" "elogind"
+
+    build {
+        run "cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "cmake --install build --prefix $HELL_ROOT/usr"
+    }
+}

@@ -1,0 +1,14 @@
+package "konsole" version "24.05.1" {
+    description "Konsole - the KDE terminal emulator"
+    source "https://download.kde.org/stable/release-service/24.05.1/src/konsole-24.05.1.tar.xz"
+    depends "qt6-base"
+
+    build {
+        run "cmake -B build -DCMAKE_INSTALL_PREFIX=/usr"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "cmake --install build --prefix $HELL_ROOT/usr"
+    }
+}

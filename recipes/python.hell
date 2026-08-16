@@ -1,0 +1,14 @@
+package "python" version "3.12.4" {
+    description "Python - the interpreted programming language"
+    source "https://www.python.org/ftp/python/3.12.4/Python-3.12.4.tar.xz"
+    depends "openssl" "zlib" "xz" "ncurses" "readline"
+
+    build {
+        run "./configure --prefix=/usr --enable-shared --with-ensurepip=install"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

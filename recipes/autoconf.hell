@@ -1,0 +1,14 @@
+package "autoconf" version "2.72" {
+    description "Autoconf - generate configure scripts"
+    source "https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz"
+    depends "m4"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

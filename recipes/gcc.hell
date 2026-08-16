@@ -1,0 +1,23 @@
+package "gcc" version "14.1.0" {
+    description "The GNU Compiler Collection"
+    source "https://ftp.gnu.org/gnu/gcc/gcc-14.1.0/gcc-14.1.0.tar.xz"
+    depends "gmp" "mpfr" "mpc" "isl" "linux-api-headers"
+
+    arch x86_64 {
+        cflags "-march=native -O3 -pipe"
+    }
+
+    build {
+        mkdir "$HELL_SRC_DIR/build"
+        run "cd build && ../configure --prefix=/usr --enable-languages=c,c++ --disable-multilib --enable-lto --enable-linker-build-id"
+        run "cd build && make -j$HELL_JOBS"
+    }
+
+    install {
+        run "cd build && make install DESTDIR=$HELL_ROOT"
+    }
+
+    post_install {
+        run "ln -sf gcc /usr/bin/cc"
+    }
+}

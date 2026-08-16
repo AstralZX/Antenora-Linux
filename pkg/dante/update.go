@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Antenora Linux contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package dante
 
 import (
@@ -6,9 +9,12 @@ import (
 	"path/filepath"
 )
 
-// Update upgrades every installed package whose repository version is newer
-// than the installed version.
+// Update syncs repositories and upgrades every installed package whose
+// repository version is newer than the installed version.
 func (d *Dante) Update() error {
+	if err := d.Sync(); err != nil {
+		return err
+	}
 	if err := d.BuildIndex(); err != nil {
 		return err
 	}
@@ -18,14 +24,17 @@ func (d *Dante) Update() error {
 	}
 	updated := 0
 	for _, name := range installed {
-		pi, ok := d.Index[name]
+		pi, _, ok := d.Lookup(name, true)
 		if !ok {
-			fmt.Printf("!! %s is installed but missing from repository\n", name)
+			fmt.Printf("!! %s is installed but missing from repositories\n", name)
 			continue
 		}
-		if pi.InstalledVersion != pi.Version {
+		if pi.InstalledVersion == "" {
+			continue
+		}
+		if CompareVersions(pi.Version, pi.InstalledVersion) > 0 {
 			fmt.Printf(":: Updating %s %s -> %s\n", name, pi.InstalledVersion, pi.Version)
-			if err := d.installOne(name); err != nil {
+			if err := d.installOne(name, pi.Source == SourceDUR); err != nil {
 				fmt.Printf("!! Failed to update %s: %v\n", name, err)
 				continue
 			}

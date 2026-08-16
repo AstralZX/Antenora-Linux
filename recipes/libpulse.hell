@@ -1,0 +1,13 @@
+package "libpulse" version "17.0" {
+    description "PipeWire libpulse compatibility (PulseAudio API)"
+    source "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/1.0.7/pipewire-1.0.7.tar.gz"
+    depends "pipewire"
+
+    build {
+        run "true"
+    }
+
+    install {
+        run "true"
+    }
+}

@@ -1,0 +1,13 @@
+package "patch" version "2.7.6" {
+    description "GNU patch - apply diffs"
+    source "https://ftp.gnu.org/gnu/patch/patch-2.7.6.tar.xz"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

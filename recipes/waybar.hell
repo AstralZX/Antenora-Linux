@@ -1,0 +1,14 @@
+package "waybar" version "0.10.4" {
+    description "Highly customizable Wayland status bar"
+    source "https://github.com/Alexays/Waybar/archive/refs/tags/0.10.4.tar.gz"
+    depends "wlroots" "gtkmm"
+
+    build {
+        run "meson setup build --prefix=/usr"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

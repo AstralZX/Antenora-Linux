@@ -1,0 +1,17 @@
+package "pkgconf" version "2.2.0" {
+    description "pkgconf - the pkg-config implementation"
+    source "https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.xz"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+    post_install {
+        run "ln -sf pkgconf /usr/bin/pkg-config"
+    }
+}

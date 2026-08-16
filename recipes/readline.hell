@@ -1,0 +1,14 @@
+package "readline" version "8.2" {
+    description "GNU readline - line editing library"
+    source "https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz"
+    depends "ncurses"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

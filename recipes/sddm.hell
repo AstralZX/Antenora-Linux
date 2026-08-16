@@ -1,0 +1,14 @@
+package "sddm" version "0.21.0" {
+    description "SDDM - Simple Desktop Display Manager"
+    source "https://github.com/sddm/sddm/releases/download/v0.21.0/sddm-0.21.0.tar.gz"
+    depends "qt6-base" "elogind"
+
+    build {
+        run "cmake -B build -DCMAKE_INSTALL_PREFIX=/usr"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "cmake --install build --prefix $HELL_ROOT/usr"
+    }
+}

@@ -1,0 +1,12 @@
+package "linux-firmware" version "20240610" {
+    description "Linux kernel firmware blobs"
+    source "https://cdn.kernel.org/pub/linux/kernel/firmware/linux-firmware-20240610.tar.xz"
+
+    build {
+        run "true"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

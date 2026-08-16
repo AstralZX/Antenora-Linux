@@ -1,0 +1,13 @@
+package "wezterm" version "20240602-110809-5046fc22" {
+    description "Wezterm - a GPU-accelerated cross-platform terminal"
+    source "https://github.com/wez/wezterm/releases/download/20240602-110809-5046fc22/wezterm-20240602-110809-5046fc22-src.tar.gz"
+    depends "wayland" "openssl"
+
+    build {
+        run "cargo build --release"
+    }
+
+    install {
+        run "install -Dm755 target/release/wezterm $HELL_ROOT/usr/bin/wezterm"
+    }
+}

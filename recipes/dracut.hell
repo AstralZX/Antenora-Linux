@@ -1,0 +1,14 @@
+package "dracut" version "103" {
+    description "Dracut - initramfs generation framework"
+    source "https://github.com/dracut-ng/dracut-ng/archive/refs/tags/103.tar.gz"
+    depends "util-linux" "bash"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

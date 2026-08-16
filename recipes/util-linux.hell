@@ -1,0 +1,14 @@
+package "util-linux" version "2.40.1" {
+    description "Essential Linux utilities"
+    source "https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.1.tar.xz"
+    depends "ncurses" "zlib"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

@@ -1,0 +1,14 @@
+package "cmake" version "3.29.5" {
+    description "CMake - cross-platform build system"
+    source "https://github.com/Kitware/CMake/releases/download/v3.29.5/cmake-3.29.5.tar.gz"
+    depends "openssl" "ncurses"
+
+    build {
+        run "./bootstrap --prefix=/usr --parallel=$HELL_JOBS"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

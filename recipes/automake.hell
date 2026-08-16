@@ -1,0 +1,14 @@
+package "automake" version "1.16.5" {
+    description "Automake - generate Makefile.in files"
+    source "https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz"
+    depends "autoconf"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

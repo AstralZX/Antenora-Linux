@@ -1,0 +1,14 @@
+package "rsync" version "3.3.0" {
+    description "rsync - fast incremental file transfer"
+    source "https://download.samba.org/pub/rsync/src/rsync-3.3.0.tar.gz"
+    depends "zstd" "lz4"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

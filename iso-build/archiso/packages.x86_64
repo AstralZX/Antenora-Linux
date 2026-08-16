@@ -1,10 +1,11 @@
 # Base packages for the Antenora live environment.
-# Pulled from the Arch repos during iso-build; the installed system is managed
-# by Dante (s6, glibc, XFS) — but the live root needs a bootable bootstrap.
+# The live ISO is a bootstrap only: it boots the stock `linux` kernel so the
+# image builds against vanilla Arch repos. The Gates of Hell installer then
+# replaces it with linux-cachyos-bore via Dante on the installed system.
 
 base
 base-devel
-linux-cachyos-bore
+linux
 linux-firmware
 intel-ucode
 amd-ucode

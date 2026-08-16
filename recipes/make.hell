@@ -1,0 +1,13 @@
+package "make" version "4.4.1" {
+    description "GNU make - the build driver"
+    source "https://ftp.gnu.org/gnu/make/make-4.4.1.tar.gz"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

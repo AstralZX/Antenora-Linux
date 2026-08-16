@@ -1,0 +1,12 @@
+package "toolchain" version "1.0.0" {
+    description "Meta-package: the complete Antenora build toolchain"
+    depends "binutils" "gcc" "make" "m4" "autoconf" "automake" "libtool" "pkgconf" "flex" "bison" "cmake" "meson" "ninja" "patch" "linux-api-headers"
+
+    build {
+        run "true"
+    }
+
+    install {
+        run "true"
+    }
+}

@@ -1,0 +1,14 @@
+package "wget" version "1.24.5" {
+    description "Wget - non-interactive network downloader"
+    source "https://ftp.gnu.org/gnu/wget/wget-1.24.5.tar.gz"
+    depends "openssl"
+
+    build {
+        run "./configure --prefix=/usr --with-ssl=openssl"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

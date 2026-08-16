@@ -1,0 +1,12 @@
+package "os-prober" version "1.81" {
+    description "Detect other operating systems for GRUB"
+    source "https://salsa.debian.org/installer-team/os-prober/-/archive/1.81/os-prober-1.81.tar.gz"
+
+    build {
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

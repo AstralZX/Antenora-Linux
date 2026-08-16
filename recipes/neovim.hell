@@ -1,0 +1,14 @@
+package "neovim" version "0.10.1" {
+    description "Neovim - the hyperextensible Vim-based editor"
+    source "https://github.com/neovim/neovim/archive/refs/tags/v0.10.1.tar.gz"
+    depends "ncurses" "libuv" "luajit"
+
+    build {
+        run "cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "cmake --install build --prefix $HELL_ROOT/usr"
+    }
+}

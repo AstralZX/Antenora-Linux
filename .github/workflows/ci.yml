@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Validate recipes
+        run: |
+          go build -o /tmp/dante ./cmd/dante
+          for f in recipes/*.hell dur/recipes/*.hell; do
+            /tmp/dante compile "$f" - >/dev/null || { echo "FAILED: $f"; exit 1; }
+          done
+          echo "All recipes parse."
+
+      - name: gofmt check
+        run: test -z "$(gofmt -l .)"

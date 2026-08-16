@@ -1,0 +1,14 @@
+package "libnftnl" version "1.2.6" {
+    description "Netfilter nftables userspace library"
+    source "https://netfilter.org/projects/libnftnl/files/libnftnl-1.2.6.tar.xz"
+    depends "libmnl" "libnl"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

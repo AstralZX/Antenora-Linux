@@ -1,0 +1,19 @@
+package "binutils" version "2.42" {
+    description "GNU binutils - assembler, linker, and binary tools"
+    source "https://ftp.gnu.org/gnu/binutils/binutils-2.42.tar.xz"
+    depends "zlib"
+
+    arch x86_64 {
+        cflags "-march=native -O3 -pipe"
+    }
+
+    build {
+        mkdir "$HELL_SRC_DIR/build"
+        run "cd build && ../configure --prefix=/usr --enable-gold --enable-plugins --enable-lto"
+        run "cd build && make -j$HELL_JOBS"
+    }
+
+    install {
+        run "cd build && make install DESTDIR=$HELL_ROOT"
+    }
+}

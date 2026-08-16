@@ -1,0 +1,12 @@
+package "lz4" version "1.9.4" {
+    description "Extremely fast LZ4 compression"
+    source "https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz"
+
+    build {
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT PREFIX=/usr"
+    }
+}

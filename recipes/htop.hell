@@ -1,0 +1,14 @@
+package "htop" version "3.3.0" {
+    description "htop - interactive process viewer"
+    source "https://github.com/htop-dev/htop/releases/download/3.3.0/htop-3.3.0.tar.xz"
+    depends "ncurses"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

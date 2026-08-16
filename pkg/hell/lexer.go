@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Antenora Linux contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Package hell implements the Hell package recipe language: a tokenizer,
 // parser and interpreter for the .hell files consumed by the Dante package
 // manager. Hell is a minimalistic cross between Makefile and Lua, designed to

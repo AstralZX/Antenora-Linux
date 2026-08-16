@@ -1,0 +1,47 @@
+name: build-iso
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  iso:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux/archlinux:latest
+      options: --privileged
+    permissions:
+      contents: write
+    steps:
+      - name: Install build tools
+        run: |
+          pacman-key --init
+          pacman -Sy --noconfirm --needed archiso git go
+
+      - uses: actions/checkout@v4
+
+      - name: Build Dante into the live root
+        run: |
+          CGO_ENABLED=0 go build -trimpath -ldflags '-s -w' \
+            -o iso-build/archiso/airootfs/usr/bin/dante ./cmd/dante
+
+      - name: Build the ISO
+        run: |
+          mkdir -p dist/iso
+          mkarchiso -v -w /tmp/antenora-archiso -o dist/iso iso-build/archiso
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/iso/*.iso
+          generate_release_notes: true
+
+      - name: Upload ISO artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: antenora-iso
+          path: dist/iso/*.iso
+          retention-days: 7

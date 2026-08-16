@@ -1,0 +1,14 @@
+package "openssl" version "3.3.1" {
+    description "OpenSSL cryptography and TLS toolkit"
+    source "https://github.com/openssl/openssl/releases/download/openssl-3.3.1/openssl-3.3.1.tar.gz"
+    depends "zlib"
+
+    build {
+        run "./Configure --prefix=/usr --openssldir=/etc/ssl --libdir=lib shared zlib"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

@@ -1,0 +1,14 @@
+package "dolphin" version "24.05.1" {
+    description "Dolphin - the KDE file manager"
+    source "https://download.kde.org/stable/release-service/24.05.1/src/dolphin-24.05.1.tar.xz"
+    depends "qt6-base" "kio"
+
+    build {
+        run "cmake -B build -DCMAKE_INSTALL_PREFIX=/usr"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "cmake --install build --prefix $HELL_ROOT/usr"
+    }
+}

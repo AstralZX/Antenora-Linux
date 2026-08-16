@@ -1,0 +1,13 @@
+package "xz" version "5.6.2" {
+    description "XZ compression utilities and liblzma"
+    source "https://github.com/tukaani-project/xz/releases/download/v5.6.2/xz-5.6.2.tar.xz"
+
+    build {
+        run "./configure --prefix=/usr --disable-static"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

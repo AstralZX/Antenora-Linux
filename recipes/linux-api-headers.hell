@@ -1,0 +1,12 @@
+package "linux-api-headers" version "6.9" {
+    description "Linux kernel API headers for glibc and toolchain builds"
+    source "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.9.tar.xz"
+
+    build {
+        run "make headers"
+    }
+
+    install {
+        run "make headers_install INSTALL_HDR_PATH=$HELL_ROOT/usr"
+    }
+}

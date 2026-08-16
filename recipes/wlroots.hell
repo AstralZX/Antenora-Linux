@@ -1,0 +1,14 @@
+package "wlroots" version "0.18.0" {
+    description "Modular Wayland compositor library"
+    source "https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.18.0/downloads/wlroots-0.18.0.tar.gz"
+    depends "wayland" "elogind"
+
+    build {
+        run "meson setup build --prefix=/usr -Dexamples=false"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Antenora Linux contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package dante
 
 import (
@@ -16,7 +19,10 @@ type Config struct {
 	Binary       string
 	MakeFlags    string
 	RepoURL      string
+	RepoURLs     []string
+	DurURL       string
 	BinaryMirror string
+	MirrorFile   string
 	CleanSource  string
 	KeepDeps     string
 	RepoDir      string
@@ -25,6 +31,7 @@ type Config struct {
 	BuildDir     string
 	Root         string
 	GPGKeyID     string
+	Parallel     int
 }
 
 // DefaultConfig returns the canonical Antenora defaults. RepoDir, DBDir and
@@ -36,10 +43,15 @@ func DefaultConfig() *Config {
 		prefix = ""
 	}
 	c := &Config{
-		Binary:       "NO",
-		MakeFlags:    "-j$(nproc)",
-		RepoURL:      "https://github.com/antenora/package-repo.git",
+		Binary:    "NO",
+		MakeFlags: "-j$(nproc)",
+		RepoURL:   "https://github.com/AstralZX/antenora-packages.git",
+		RepoURLs: []string{
+			"https://github.com/AstralZX/antenora-packages.git",
+		},
+		DurURL:       "https://github.com/AstralZX/antenora-dur.git",
 		BinaryMirror: "https://cdn.antenora.org/packages",
+		MirrorFile:   filepath.Join(prefix, "etc/dante/mirrors.conf"),
 		CleanSource:  "YES",
 		KeepDeps:     "NO",
 		RepoDir:      filepath.Join(prefix, "var/lib/dante/repo"),
@@ -48,6 +60,7 @@ func DefaultConfig() *Config {
 		BuildDir:     filepath.Join(prefix, "var/tmp/dante/build"),
 		Root:         "/",
 		GPGKeyID:     "0x4E54454E4F5241",
+		Parallel:     4,
 	}
 	if prefix != "" {
 		c.Root = prefix
@@ -87,12 +100,20 @@ func LoadConfig(path string) (*Config, error) {
 			c.MakeFlags = val
 		case "REPO_URL":
 			c.RepoURL = val
+		case "REPO_URLS":
+			c.RepoURLs = splitList(val)
+		case "DUR_URL":
+			c.DurURL = val
 		case "BINARY_MIRROR":
 			c.BinaryMirror = val
+		case "MIRROR_FILE":
+			c.MirrorFile = val
 		case "CLEAN_SOURCE":
 			c.CleanSource = val
 		case "KEEP_DEPS":
 			c.KeepDeps = val
+		case "PARALLEL":
+			fmt.Sscanf(val, "%d", &c.Parallel)
 		}
 	}
 	if err := sc.Err(); err != nil {
@@ -101,11 +122,21 @@ func LoadConfig(path string) (*Config, error) {
 	return applyEnvOverrides(c), nil
 }
 
+// splitList splits a space- or comma-separated list of values.
+func splitList(s string) []string {
+	s = strings.ReplaceAll(s, ",", " ")
+	return strings.Fields(s)
+}
+
 func applyEnvOverrides(c *Config) *Config {
 	override(&c.Binary, "DANTE_BINARY")
 	override(&c.MakeFlags, "DANTE_MAKEFLAGS")
 	override(&c.RepoURL, "DANTE_REPO_URL")
 	override(&c.BinaryMirror, "DANTE_BINARY_MIRROR")
+	override(&c.DurURL, "DANTE_DUR_URL")
+	if v, ok := os.LookupEnv("DANTE_REPO_URLS"); ok {
+		c.RepoURLs = splitList(v)
+	}
 	if v, ok := os.LookupEnv("DANTE_GPG_KEY"); ok {
 		c.GPGKeyID = v
 	}
@@ -116,6 +147,24 @@ func override(dst *string, key string) {
 	if v, ok := os.LookupEnv(key); ok {
 		*dst = v
 	}
+}
+
+// Repos returns the full ordered list of repository URLs (official first).
+func (c *Config) Repos() []string {
+	if len(c.RepoURLs) == 0 {
+		return []string{c.RepoURL}
+	}
+	return c.RepoURLs
+}
+
+// DurEnabled reports whether a DUR is configured.
+func (c *Config) DurEnabled() bool {
+	return c.DurURL != ""
+}
+
+// DurRepoDir returns the on-disk location of the DUR clone.
+func (c *Config) DurRepoDir() string {
+	return filepath.Join(filepath.Dir(c.RepoDir), "dur")
 }
 
 // BinaryEnabled reports whether binary packages are preferred.
@@ -150,7 +199,7 @@ func (c *Config) Jobs() string {
 
 // EnsureDirs creates the directories Dante needs to operate.
 func (c *Config) EnsureDirs() error {
-	for _, d := range []string{c.RepoDir, c.DBDir, c.CacheDir, c.BuildDir} {
+	for _, d := range []string{c.RepoDir, c.DurRepoDir(), c.DBDir, c.CacheDir, c.BuildDir} {
 		if err := os.MkdirAll(d, 0o755); err != nil {
 			return err
 		}

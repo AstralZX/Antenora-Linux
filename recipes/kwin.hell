@@ -1,0 +1,14 @@
+package "kwin" version "6.1.0" {
+    description "KWin - the KDE Wayland/X11 window manager"
+    source "https://download.kde.org/stable/plasma/6.1.0/kwin-6.1.0.tar.xz"
+    depends "qt6-base" "wayland" "elogind"
+
+    build {
+        run "cmake -B build -DCMAKE_INSTALL_PREFIX=/usr"
+        run "cmake --build build -j$HELL_JOBS"
+    }
+
+    install {
+        run "cmake --install build --prefix $HELL_ROOT/usr"
+    }
+}

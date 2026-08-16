@@ -1,0 +1,14 @@
+package "elogind" version "255.5" {
+    description "Elogind - session and login manager daemon (systemd-free)"
+    source "https://github.com/elogind/elogind/archive/refs/tags/v255.5.tar.gz"
+    depends "dbus" "libudev-zero"
+
+    build {
+        run "meson setup build --prefix=/usr -Ddefault-hierarchy=hybrid"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

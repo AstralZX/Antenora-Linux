@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Antenora Linux contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package dante
 
 import (
@@ -62,21 +65,43 @@ func (d *Dante) verifySignature(file, sigFile string) error {
 	return nil
 }
 
+// binaryURLs builds the ordered list of candidate URLs for a binary package,
+// spanning the explicit URL (if any) and every configured mirror.
+func (d *Dante) binaryURLs(pi *PackageInfo) []string {
+	var out []string
+	if pi.BinaryURL != "" {
+		out = append(out, pi.BinaryURL)
+	}
+	base := pi.Name + "-" + pi.Version + "-" + d.Arch + ".db"
+	for _, m := range d.Mirrors() {
+		out = append(out, m+"/"+base)
+	}
+	return out
+}
+
 // InstallBinary downloads and verifies a binary package, then extracts it into
-// the staging directory. It returns an error (BinaryError) on any verification
-// failure so the caller can fall back to source.
+// the staging directory. It fails over across mirrors. It returns an error
+// (BinaryError) on any verification failure so the caller can fall back to
+// source.
 func (d *Dante) InstallBinary(pi *PackageInfo, srcDir string) (string, error) {
 	cfg := d.Config
-	url := pi.BinaryURL
-	if url == "" {
-		url = cfg.BinaryMirror + "/" + pi.Name + "-" + pi.Version + "-" + d.Arch + ".db"
-	}
-	archive := filepath.Join(cfg.CacheDir, "packages", filepath.Base(url))
+	archive := filepath.Join(cfg.CacheDir, "packages", filepath.Base(pi.Name+"-"+pi.Version+"-"+d.Arch+".db"))
 	if err := os.MkdirAll(filepath.Dir(archive), 0o755); err != nil {
 		return "", err
 	}
-	if err := d.Download(url, archive); err != nil {
-		return "", err
+
+	var lastErr error
+	downloaded := false
+	for _, url := range d.binaryURLs(pi) {
+		if err := d.Download(url, archive); err != nil {
+			lastErr = err
+			continue
+		}
+		downloaded = true
+		break
+	}
+	if !downloaded {
+		return "", fmt.Errorf("downloading binary: %w", lastErr)
 	}
 
 	if err := verifySHA256(archive, pi.BinarySHA256); err != nil {
@@ -85,7 +110,7 @@ func (d *Dante) InstallBinary(pi *PackageInfo, srcDir string) (string, error) {
 
 	sigURL := pi.BinarySigURL
 	if sigURL == "" {
-		sigURL = url + ".sig"
+		sigURL = archive + ".sig"
 	}
 	sigFile := archive + ".sig"
 	if err := d.Download(sigURL, sigFile); err != nil {

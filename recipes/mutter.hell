@@ -1,0 +1,14 @@
+package "mutter" version "46.2" {
+    description "Mutter - GNOME Wayland compositor"
+    source "https://download.gnome.org/sources/mutter/46/mutter-46.2.tar.xz"
+    depends "wayland" "elogind"
+
+    build {
+        run "meson setup build --prefix=/usr -Dsystemd=false"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

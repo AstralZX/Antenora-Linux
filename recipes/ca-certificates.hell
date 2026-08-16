@@ -1,0 +1,13 @@
+package "ca-certificates" version "20240602" {
+    description "Common CA certificates bundle"
+    source "https://curl.se/ca/cacert-2024-06-02.pem"
+
+    build {
+        run "true"
+    }
+
+    install {
+        mkdir "/etc/ssl/certs"
+        cp "$HELL_SRC_DIR/cacert-2024-06-02.pem" "$HELL_ROOT/etc/ssl/certs/ca-certificates.crt"
+    }
+}

@@ -1,0 +1,18 @@
+package "bash" version "5.2.26" {
+    description "GNU Bash - the Bourne-again shell"
+    source "https://ftp.gnu.org/gnu/bash/bash-5.2.26.tar.gz"
+    depends "ncurses" "readline"
+
+    build {
+        run "./configure --prefix=/usr --with-installed-readline"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+    post_install {
+        run "ln -sf bash /usr/bin/sh"
+    }
+}

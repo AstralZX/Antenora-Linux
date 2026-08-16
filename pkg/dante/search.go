@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Antenora Linux contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package dante
 
 import (
@@ -6,48 +9,66 @@ import (
 	"strings"
 )
 
-// Search scans package names and descriptions for term and prints matches.
+// Search scans official and DUR package names and descriptions for term and
+// prints matches, tagging their source.
 func (d *Dante) Search(term string) error {
 	if err := d.BuildIndex(); err != nil {
 		return err
 	}
 	term = strings.ToLower(term)
-	names := make([]string, 0, len(d.Index))
-	for n := range d.Index {
-		names = append(names, n)
+	type hit struct {
+		pi     *PackageInfo
+		source Source
 	}
-	sort.Strings(names)
-
-	found := 0
-	for _, n := range names {
-		pi := d.Index[n]
-		if strings.Contains(strings.ToLower(n), term) ||
-			strings.Contains(strings.ToLower(pi.Description), term) {
-			mark := ""
-			if pi.Installed {
-				mark = " [installed]"
-			}
-			fmt.Printf("%s/%s %s%s\n", pi.Name, pi.Version, pi.Description, mark)
-			found++
+	var hits []hit
+	for n, pi := range d.Index {
+		if match(term, n, pi.Description) {
+			hits = append(hits, hit{pi, SourceOfficial})
 		}
 	}
-	if found == 0 {
+	for n, pi := range d.Dur {
+		if match(term, n, pi.Description) {
+			hits = append(hits, hit{pi, SourceDUR})
+		}
+	}
+	sort.Slice(hits, func(i, j int) bool {
+		return hits[i].pi.Name < hits[j].pi.Name
+	})
+	for _, h := range hits {
+		mark := ""
+		if h.pi.Installed {
+			mark = " [installed]"
+		}
+		tag := ""
+		if h.source == SourceDUR {
+			tag = " (DUR)"
+		}
+		fmt.Printf("%s/%s %s%s%s\n", h.pi.Name, h.pi.Version, h.pi.Description, tag, mark)
+	}
+	if len(hits) == 0 {
 		fmt.Printf("No packages match %q\n", term)
 	}
 	return nil
 }
 
-// Info prints full metadata, dependencies and binary availability for a package.
+func match(term, name, desc string) bool {
+	return strings.Contains(strings.ToLower(name), term) ||
+		strings.Contains(strings.ToLower(desc), term)
+}
+
+// Info prints full metadata, dependencies and binary availability for a
+// package, searching the DUR when the package is only present there.
 func (d *Dante) Info(name string) error {
 	if err := d.BuildIndex(); err != nil {
 		return err
 	}
-	pi, ok := d.Index[name]
+	pi, src, ok := d.Lookup(name, true)
 	if !ok {
 		return fmt.Errorf("package %q not found", name)
 	}
 	fmt.Printf("Name        : %s\n", pi.Name)
 	fmt.Printf("Version     : %s\n", pi.Version)
+	fmt.Printf("Source      : %s\n", src)
 	fmt.Printf("Description : %s\n", pi.Description)
 	fmt.Printf("Recipe      : %s\n", pi.RecipePath)
 	if len(pi.Depends) > 0 {
@@ -55,8 +76,8 @@ func (d *Dante) Info(name string) error {
 	} else {
 		fmt.Println("Depends     : (none)")
 	}
-	if pi.Source != "" {
-		fmt.Printf("Source      : %s\n", pi.Source)
+	if pi.SourceURL != "" {
+		fmt.Printf("Upstream    : %s\n", pi.SourceURL)
 	}
 	if pi.BinaryURL != "" {
 		fmt.Printf("Binary      : %s\n", pi.BinaryURL)

@@ -1,0 +1,13 @@
+package "lazygit" version "0.43.1" {
+    description "lazygit - a simple terminal UI for git commands"
+    source "https://github.com/jesseduffield/lazygit/archive/refs/tags/v0.43.1.tar.gz"
+    depends "git"
+
+    build {
+        run "go build -trimpath -ldflags '-s -w' -o lazygit"
+    }
+
+    install {
+        run "install -Dm755 lazygit $HELL_ROOT/usr/bin/lazygit"
+    }
+}

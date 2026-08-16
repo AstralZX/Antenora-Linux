@@ -1,0 +1,14 @@
+package "coreutils" version "9.5" {
+    description "GNU core utilities"
+    source "https://ftp.gnu.org/gnu/coreutils/coreutils-9.5.tar.xz"
+    depends "openssl"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

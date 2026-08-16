@@ -1,0 +1,13 @@
+package "greetd" version "0.10.3" {
+    description "greetd - minimal and flexible login manager daemon"
+    source "https://git.sr.ht/~kennylevinsen/greetd/archive/0.10.3.tar.gz"
+    depends "elogind"
+
+    build {
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT PREFIX=/usr"
+    }
+}

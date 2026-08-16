@@ -1,0 +1,13 @@
+package "wayland" version "1.23.0" {
+    description "Wayland protocol and reference compositor library"
+    source "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.23.0/downloads/wayland-1.23.0.tar.xz"
+
+    build {
+        run "meson setup build --prefix=/usr"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+    }
+}

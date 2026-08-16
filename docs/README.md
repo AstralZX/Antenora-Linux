@@ -2,44 +2,132 @@
 
 > *Abandon all hope, ye who enter here.*
 >
-> The Ninth Circle of Speed. An operating system forged from the raw silicon
-> up, in contempt of bloat. s6 for init. glibc for compatibility. XFS for
-> warriors. A package manager that walks you through Hell.
+> The Ninth Circle of Speed. An operating system forged from raw silicon, in
+> contempt of bloat, in worship of latency budgets. s6 for init. glibc for
+> compatibility. XFS for warriors. A package manager that walks you through
+> Hell.
+
+<p align="center">
+  <img src="theme/grub-theme/antenna-logo.png" alt="Antenora crest" width="420" />
+</p>
+
+[![ci](https://github.com/AstralZX/Antenora-Linux/actions/workflows/ci.yml/badge.svg)](https://github.com/AstralZX/Antenora-Linux/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 ---
 
-## The Ten Commandments (abridged)
+## What is Antenora?
+
+Antenora is a **source-based Linux distribution** that rejects every
+compromise. It is the operating system for people who want their machine to be
+a *machine*, not a parking lot for daemons. It is opinionated to the point of
+dogma, fast to the point of disbelief.
+
+## The Ten Commandments
 
 | # | Law | Verdict |
 |---|-----|---------|
-| I | systemd | **FORBIDDEN** — s6 + s6-rc only |
-| II | musl | Rejected — **glibc** always |
-| III | ext4/btrfs/zfs | Rejected — **XFS** (`ftype=1 inode64`) |
-| IV | package manager | **Dante**, written in Go |
-| V | package language | **Hell** (`.hell`) |
-| VI | kernel | **linux-cachyos-bore**, 1000Hz, BORE |
-| VII | bootloader | **GRUB 2**, dark red/black, 3s timeout |
-| VIII | installer | **The Gates of Hell** (TTY Bash) |
-| IX | power user | Zsh + p10k, ZRAM, nftables, sysctl |
+| I | `systemd` | **FORBIDDEN** — s6 + s6-rc only, boot measured in milliseconds |
+| II | `musl` | Rejected — **glibc** always (Steam, NVIDIA, proprietary CAD) |
+| III | `ext4`/`btrfs`/`zfs` | Rejected — **XFS** (`ftype=1 inode64`) |
+| IV | Package manager | **Dante**, written in Go |
+| V | Package language | **Hell** (`.hell`), 50-line max (`BLASPHEMY_ERROR`) |
+| VI | Kernel | **linux-cachyos-bore** — 1000Hz, preempt-dynamic, BORE, `-O3 -march=native` |
+| VII | Bootloader | **GRUB 2**, dark red/black, 3s timeout |
+| VIII | Installer | **The Gates of Hell** (TTY, cfdisk → XFS → chroot → reboot) |
+| IX | Power user | Zsh + Powerlevel10k, ZRAM `lz4`, nftables, sysctl |
+| X | Purity | No bloat. No placeholders. No mercy. |
 
 ---
 
-## Repository layout
+## The Pillars
 
+### s6 — init without the tumor
+
+Every service is a trivial script in `/etc/s6-rc/source`. `s6-rc` supervises,
+restarts, and logs. Boot reaches a login prompt in the blink of an eye, not a
+coffee break.
+
+### Dante — the package manager
+
+Written in **Go**. Source-based like Gentoo, with **signed binary fallbacks**.
+
+```sh
+dante sync                  # update repos + DUR
+dante install base-system   # resolve deps, compile, install
+dante install -A pkgname    # install from the DUR
+dante remove pkgname        # uninstall + reverse-dep warnings
+dante search term           # search official + DUR
+dante info pkgname          # metadata + binary availability
+dante update                # upgrade (version-aware)
+dante clean                 # purge caches
+dante toolchain             # bootstrap the build toolchain
+dante mirror                # test + rank binary mirrors
+dante compile in.hell out.mk # compile a recipe to a Makefile
 ```
-antenora/
-├── cmd/dante/            Dante CLI entry point
-├── pkg/dante/            Package manager (Go): repo, install, build, binary…
-├── pkg/hell/             Hell language: lexer, parser, interpreter, builtins
-├── scripts/              install.sh, stage3-build.sh, iso-build.sh
-├── s6-services/          s6-rc run scripts (agetty, dbus, pipewire, …)
-├── recipes/              .hell package recipes
-├── kernel-config/config  linux-cachyos-bore baseline .config
-├── iso-build/            mkarchiso profile + live rootfs overlay
-├── theme/                GRUB + Plymouth themes (Antenora crest)
-├── sysctl/               99-antenora-performance.conf
-├── manifest.yaml         Central repo manifest (sample)
-└── docs/                 This document
+
+- **Dependency resolution** is a topological sort with full cycle reporting.
+- **Binary packages** are SHA-256 checked **and** GPG-verified with the
+  Antenora maintainer key; any failure triggers automatic source fallback.
+- **Mirrors** are ordered and fail over automatically.
+- **Rollback-friendly**: every installed file is tracked in
+  `/var/lib/dante/db`.
+
+### Hell — the package language
+
+A minimalistic cross between Makefile and Lua. Impossible to write poorly:
+exceed 50 lines and the parser throws `BLASPHEMY_ERROR`.
+
+```hell
+package "curl" version "8.8.0" {
+    source "https://github.com/curl/curl/releases/download/8.8.0/curl-8.8.0.tar.xz"
+    depends "openssl" "zlib" "ca-certificates"
+
+    arch x86_64 { cflags "-march=native -O3 -pipe" }
+
+    build    { run "./configure --prefix=/usr --with-openssl"
+               run "make -j$HELL_JOBS" }
+    install  { run "make install DESTDIR=$HELL_ROOT" }
+
+    binary "https://cdn.antenora.org/packages/curl-8.8.0-x86_64.db" {
+        sha256 "a1b2c3d4e5f6..."
+        size "2.4MB"
+    }
+}
+```
+
+**Built-ins:** `run`, `patch`, `mkdir`, `cp`, `rm`, `ln`, `var`.
+**Variables:** `$HELL_ROOT`, `$HELL_SRC_DIR`, `$HELL_ARCH`, `$HELL_CFLAGS`,
+`$HELL_LDFLAGS`, `$HELL_JOBS`.
+**Control flow:** `if arch_x86_64` / `if file_exists "/x"` / `if env "VAR"`.
+
+### The Toolchain
+
+`dante toolchain` (or `scripts/toolchain.sh`) bootstraps the full build
+toolchain from nothing: `linux-api-headers` → `gmp`/`mpfr`/`mpc`/`isl` →
+`binutils` → `gcc` → `make`/autotools → `cmake`/`meson`/`ninja`.
+
+---
+
+## The Repositories
+
+| Repository | Purpose |
+|------------|---------|
+| **Antenora-Linux** | The OS: installer, ISO profile, kernel config, themes, docs |
+| **antenora-packages** | The central package repository (`recipes/` + `manifest.yaml`) |
+| **antenora-dur** | The **Dante User Repository** — public, anyone can commit |
+| **dante** | The package manager alone (`cmd/` + `pkg/`) |
+
+Split the monorepo into its satellites with `scripts/split-repos.sh`.
+
+### The DUR
+
+The DUR is Antenora's AUR: a public repository **anyone can commit to**.
+Submit a recipe and install it:
+
+```sh
+scripts/dur-submit.sh my-package.hell   # contribute
+dante install -A my-package             # install
 ```
 
 ---
@@ -47,184 +135,87 @@ antenora/
 ## Building
 
 ### Prerequisites
-- Go 1.22+
-- `git`, `wget`, `tar`, `xz`
-- `mkarchiso` (for the ISO), `dialog` (installer gauge)
+- Go 1.22+, `git`, `wget`, `tar`, `xz`
+- `mkarchiso` (ISO), `dialog` (installer gauge)
 
-### 1. Build Dante
+### Build Dante
 
 ```sh
-make dante            # -> dist/dante
-# or
-go build ./cmd/dante
+make dante          # -> dist/dante
 ```
 
-### 2. Run the tests
+### Run the tests
 
 ```sh
 make test
 ```
 
-### 3. Build the Stage3 bootstrap tarball
+### Build the Stage3 bootstrap tarball
 
 ```sh
-make stage3           # -> dist/stage3-1.0.0-x86_64.tar.xz
+make stage3         # -> dist/stage3-1.0.0-x86_64.tar.xz
 ```
 
-The Stage3 contains the s6 service set, base configuration and the Dante
-binary, solving the bootstrap chicken-and-egg problem.
-
-### 4. Build the live ISO
+### Build the live ISO
 
 ```sh
-make iso              # -> dist/iso/antenora-*.iso
+make iso            # -> dist/iso/antenora-*.iso
 ```
 
-### 5. Build everything
+### Everything
 
 ```sh
 make all
 ```
 
----
+### Prebuilt releases
 
-## Dante — the package manager
-
-Dante is a source-based (with binary fallback) package manager. Every package
-is described by a **Hell** recipe.
+Tagged releases are built by CI and ship a ready-to-boot ISO:
 
 ```sh
-dante sync                    # update the central repo (git pull)
-dante install base-system     # resolve deps (topological sort), build/install
-dante install plasma          # KDE Plasma
-dante remove plasma           # remove + reverse-dependency warnings
-dante search pipewire         # search names/descriptions
-dante info sway               # metadata + binary availability
-dante update                  # upgrade installed packages
-dante clean                   # purge caches
-dante compile foo.hell foo.mk # compile a recipe to a Makefile
-```
-
-### Configuration — `/etc/dante/dante.conf`
-
-```conf
-BINARY="NO"                 # "YES" prefers signed binary packages
-MAKEFLAGS="-j$(nproc)"
-REPO_URL="https://github.com/antenora/package-repo.git"
-BINARY_MIRROR="https://cdn.antenora.org/packages"
-CLEAN_SOURCE="YES"
-KEEP_DEPS="NO"
-```
-
-### Binary packages
-
-Binary archives are **GPG-signed** with the Antenora maintainer key and
-carry a SHA-256 checksum. Dante:
-
-1. downloads the archive,
-2. verifies the SHA-256 checksum,
-3. verifies the detached GPG signature,
-4. extracts it.
-
-On **any** verification failure it refuses the binary and falls back to source
-compilation. If source compilation then fails, it logs the error and tells you
-to file a bug.
-
----
-
-## The Hell language
-
-A recipe is at most **50 lines** — longer and the parser raises a
-`BLASPHEMY_ERROR`.
-
-```hell
-package "curl" version "8.5.0" {
-    source "https://github.com/curl/curl/releases/download/8.5.0/curl-8.5.0.tar.xz"
-    depends "openssl" "zlib" "ca-certificates"
-
-    arch x86_64 {
-        cflags "-march=native -O3 -pipe"
-    }
-
-    build {
-        run "./configure --prefix=/usr --with-openssl"
-        run "make -j$HELL_JOBS"
-    }
-
-    install {
-        run "make install DESTDIR=$HELL_ROOT"
-    }
-
-    post_install {
-        run "update-ca-certificates"
-    }
-
-    binary "https://cdn.antenora.org/packages/curl-8.5.0-x86_64.db" {
-        sha256 "a1b2c3d4e5f6..."
-        size "2.4MB"
-    }
-}
-```
-
-### Built-ins
-`run`, `patch`, `mkdir`, `cp`, `rm`, `ln`, `var`
-
-### Predefined variables
-`$HELL_ROOT`, `$HELL_SRC_DIR`, `$HELL_ARCH`, `$HELL_CFLAGS`, `$HELL_LDFLAGS`,
-`$HELL_JOBS`
-
-### Control flow
-```hell
-if arch_x86_64 { run "..." } else { run "..." }
-if file_exists "/some/path" { run "..." }
-if env "SOME_VAR" { run "..." }
+# manual
+make iso
+# CI (on GitHub)
+git tag v1.0.0 && git push origin v1.0.0
 ```
 
 ---
 
-## Installing Antenora
+## Installing
 
-Boot the live ISO and run the installer:
+Boot the live ISO and run `install-antenora`. The **Gates of Hell** installer:
 
-```sh
-install-antenora
-```
+1. `cfdisk` partitioning
+2. XFS (`ftype=1 inode64`) root, FAT32 EFI
+3. Stage3 extraction
+4. chroot
+5. kernel (binary default; source if you are a masochist)
+6. base system + desktop (KDE / GNOME / Sway / none)
+7. user + `wheel` + sudo + SSH keys
+8. `grub-mkconfig`
+9. a winged lion
+10. reboot into the promised land
 
-The **Gates of Hell** installer:
-
-1. runs `cfdisk` for partitioning,
-2. formats root as XFS (`ftype=1 inode64`), EFI as FAT32,
-3. extracts the Stage3 tarball,
-4. chroots into the new system,
-5. installs the kernel (binary default, source if you are a masochist),
-6. installs the base system and your chosen desktop (KDE / GNOME / Sway / none),
-7. creates your user, adds you to `wheel`, configures sudo, generates SSH keys,
-8. runs `grub-mkconfig`,
-9. prints a winged lion,
-10. reboots.
-
-ZRAM (`lz4`) is enabled automatically — no swap partition. The firewall
-(`nftables`) blocks everything inbound except SSH and ping. On first boot,
-`/usr/lib/antenora/firstboot.sh` sets up ZRAM, generates SSH keys and loads
-the firewall.
+ZRAM (`lz4`) is automatic. The `nftables` firewall blocks everything inbound
+except SSH and ping. First boot generates SSH keys, enables ZRAM, and loads the
+firewall.
 
 ---
 
 ## Performance
 
-`/etc/sysctl.d/99-antenora-performance.conf` ships:
-
-```
-vm.vfs_cache_pressure = 50
-vm.swappiness         = 10
-kernel.numa_balancing = 0
-```
-
-plus BBR congestion control, larger network buffers and aggressive dirty-page
-flushing.
+`/etc/sysctl.d/99-antenora-performance.conf` ships `vm.vfs_cache_pressure=50`,
+`vm.swappiness=10`, `kernel.numa_balancing=0`, BBR congestion control, and
+larger network buffers. The kernel runs at 1000Hz with the BORE scheduler tuned
+for minimal input latency and maximum FPS.
 
 ---
 
 ## License
 
-MIT. The trident crest is drawn in blood. Use it well.
+**GNU Affero General Public License v3.0** ([LICENSE](LICENSE)).
+
+Antenora is free software: you may copy, modify, and redistribute it under the
+terms of the AGPL-3.0. If you run a modified Antenora on a network server, you
+must offer its users the source. The trident crest is drawn in blood. Use it
+well.
