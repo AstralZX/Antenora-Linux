@@ -10,3 +10,6 @@
 .DS_Store
 *.swp
 *~
+
+# Built binaries copied into the live root during iso-build
+/iso-build/archiso/airootfs/usr/bin/dante
