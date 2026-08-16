@@ -1,0 +1,30 @@
+package "linux-cachyos-bore" version "6.9.6-cachyos" {
+    description "Linux kernel with CachyOS patches and the BORE scheduler"
+    source "https://github.com/CachyOS/linux-cachyos/archive/refs/tags/6.9.6-cachyos.tar.gz"
+    depends "dracut" "linux-firmware"
+
+    arch x86_64 {
+        cflags "-march=native -O3 -pipe"
+    }
+
+    build {
+        cp "/usr/src/antenora/kernel-config/config" "$HELL_SRC_DIR/.config"
+        run "make olddefconfig"
+        run "make -j$HELL_JOBS bzImage modules"
+    }
+
+    install {
+        run "make modules_install INSTALL_MOD_PATH=$HELL_ROOT"
+        cp "arch/x86/boot/bzImage" "$HELL_ROOT/boot/vmlinuz-linux-cachyos-bore"
+        cp "System.map" "$HELL_ROOT/boot/System.map-linux-cachyos-bore"
+    }
+
+    post_install {
+        run "dracut --force --kver 6.9.6-cachyos /boot/initramfs-linux-cachyos-bore.img"
+    }
+
+    binary "https://cdn.antenora.org/packages/linux-cachyos-bore-6.9.6-x86_64.db" {
+        sha256 "9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b"
+        size "140MB"
+    }
+}

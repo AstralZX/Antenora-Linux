@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+# TTY login on tty1 — the first face of Antenora
+/bin/agetty --noclear 38400 tty1 linux

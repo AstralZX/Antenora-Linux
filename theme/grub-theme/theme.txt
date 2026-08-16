@@ -1,0 +1,53 @@
+# Antenora GRUB theme — dark red on black
+# The Gatekeeper's livery.
+
+desktop-image: "antenna-logo.png"
+title-text: "Antenora Linux — Abandon All Hope, Ye Who Enter Here"
+title-color: "#b91c1c"
+title-font: "DejaVu Sans Bold 16"
+
+message-color: "#d11f1f"
+message-bg-color: "#1a0303"
+
+terminal-left: "0"
+terminal-top: "0"
+terminal-width: "100%"
+terminal-height: "100%"
+terminal-border: "0"
+
++ boot_menu {
+    left = 15%
+    top = 25%
+    width = 70%
+    height = 50%
+    item_font = "DejaVu Sans Bold 14"
+    item_color = "#8a0a0a"
+    selected_item_color = "#ffffff"
+    selected_item_pixmap_style = "select_*.png"
+    item_height = 28
+    item_padding = 4
+    item_spacing = 4
+}
+
++ label {
+    top = 8%
+    left = 0
+    width = 100%
+    height = 12%
+    align = "center"
+    color = "#b91c1c"
+    font = "DejaVu Sans Bold 20"
+    text = "A N T E N O R A"
+}
+
++ progress_bar {
+    left = 20%
+    top = 85%
+    width = 60%
+    height = 16
+    id = "__timeout__"
+    bg_color = "#1a0303"
+    fg_color = "#b91c1c"
+    border_color = "#5c0a0a"
+    text_color = "#ffffff"
+}

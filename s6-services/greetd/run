@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+# greetd greeter (SwayWM)
+/usr/bin/greetd

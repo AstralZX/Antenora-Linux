@@ -1,0 +1,24 @@
+package "gnome" version "46.2" {
+    description "GNOME desktop (minimal) with GDM"
+    source "https://download.gnome.org/sources/gnome-shell/46/gnome-shell-46.2.tar.xz"
+    depends "gdm" "mutter" "nautilus" "networkmanager"
+
+    build {
+        run "meson setup build --prefix=/usr -Dsystemd=false"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+        mkdir "/etc/s6-rc/source/gdm"
+    }
+
+    post_install {
+        run "s6-rc -u change gdm"
+    }
+
+    binary "https://cdn.antenora.org/packages/gnome-46.2-x86_64.db" {
+        sha256 "6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c"
+        size "980MB"
+    }
+}

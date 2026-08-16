@@ -1,0 +1,21 @@
+package "pipewire" version "1.0.7" {
+    description "PipeWire audio server with WirePlumber session"
+    source "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/1.0.7/pipewire-1.0.7.tar.gz"
+    depends "wireplumber" "libpulse"
+
+    build {
+        run "meson setup build --prefix=/usr -Dsystemd=disabled"
+        run "ninja -C build -j$HELL_JOBS"
+    }
+
+    install {
+        run "ninja -C build install --destdir $HELL_ROOT"
+        mkdir "/etc/s6-rc/source/pipewire"
+        mkdir "/etc/s6-rc/source/wireplumber"
+    }
+
+    binary "https://cdn.antenora.org/packages/pipewire-1.0.7-x86_64.db" {
+        sha256 "8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e"
+        size "6.7MB"
+    }
+}

@@ -1,0 +1,12 @@
+# Build artifacts
+/dist/
+/tmp/
+
+# Go
+*.test
+*.out
+
+# Editor / OS noise
+.DS_Store
+*.swp
+*~

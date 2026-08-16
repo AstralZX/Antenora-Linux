@@ -1,0 +1,32 @@
+package "glibc" version "2.39" {
+    description "The GNU C library - the Antenora libc"
+    source "https://ftp.gnu.org/gnu/glibc/glibc-2.39.tar.xz"
+    depends "linux-api-headers"
+
+    arch x86_64 {
+        cflags "-march=native -O3 -pipe -fno-plt"
+    }
+
+    arch aarch64 {
+        cflags "-mcpu=native -O3 -pipe"
+    }
+
+    build {
+        mkdir "$HELL_SRC_DIR/build"
+        run "cd build && ../configure --prefix=/usr --disable-nscd --enable-stack-protector=strong"
+        run "cd build && make -j$HELL_JOBS"
+    }
+
+    install {
+        run "cd build && make install DESTDIR=$HELL_ROOT"
+    }
+
+    post_install {
+        run "ldconfig"
+    }
+
+    binary "https://cdn.antenora.org/packages/glibc-2.39-x86_64.db" {
+        sha256 "0e9a7d6b8c5f4a3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a"
+        size "18MB"
+    }
+}

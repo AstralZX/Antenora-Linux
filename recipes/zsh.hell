@@ -1,0 +1,27 @@
+package "zsh" version "5.9" {
+    description "Z shell - the Antenora default shell"
+    source "https://www.zsh.org/pub/zsh-5.9.tar.xz"
+    depends "ncurses" "pcre2"
+
+    arch x86_64 {
+        cflags "-march=native -O3 -pipe"
+    }
+
+    build {
+        run "./configure --prefix=/usr --enable-multibyte"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+    post_install {
+        run "chsh -s /usr/bin/zsh root"
+    }
+
+    binary "https://cdn.antenora.org/packages/zsh-5.9-x86_64.db" {
+        sha256 "c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3"
+        size "3.5MB"
+    }
+}

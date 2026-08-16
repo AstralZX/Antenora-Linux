@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+# System message bus
+/usr/bin/dbus-daemon --system --nofork --nopidfile

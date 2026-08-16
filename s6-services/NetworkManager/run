@@ -1,0 +1,3 @@
+#!/command/execlineb -P
+# Network management
+/usr/bin/NetworkManager --no-daemon
