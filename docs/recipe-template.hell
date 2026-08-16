@@ -1,0 +1,19 @@
+# TEMPLATE.hell — copy this and fill in the blanks.
+# Rename to <your-package>.hell and delete these comment lines.
+
+package "example" version "1.0.0" {
+    description "Short one-line summary shown by 'dante search'"
+    source "https://example.com/example-1.0.0.tar.gz"
+
+    # List dependencies here (or delete the line if there are none).
+    depends "glibc"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

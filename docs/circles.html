@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Nine Circles — Antenora Linux</title>
+  <meta name="description" content="Antenora's philosophy, mapped to the nine circles of Dante's Inferno: s6, glibc, XFS, and the Dante package manager.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="index.html">Antenora<small>Linux</small></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="circles.html" class="active">Circles</a>
+      <a href="install.html">Install</a>
+      <a href="packages.html">Packages</a>
+      <a href="dur.html">DUR</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="container">
+    <div class="eyebrow">Inferno</div>
+    <h1>THE NINE CIRCLES</h1>
+    <p>The Ten Commandments of Antenora, arranged — as they must be — into the nine circles of Hell.</p>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <div class="grid two">
+      <div class="card circle reveal">
+        <div class="ring">I</div>
+        <div>
+          <div class="num">Limbo · The Init Heresy</div>
+          <h3>systemd is forbidden</h3>
+          <p>The virtuous unbaptised were never touched by systemd. Antenora boots <strong>s6 + s6-rc</strong> — every service a trivial script. Boot to login in milliseconds, or it has failed.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">II</div>
+        <div>
+          <div class="num">Lust · The Passion for Speed</div>
+          <h3>linux-cachyos-bore</h3>
+          <p><code>CONFIG_HZ=1000</code>, preempt-dynamic, the BORE scheduler, <code>-O3 -march=native</code>. Minimal input latency, maximum FPS.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">III</div>
+        <div>
+          <div class="num">Gluttony · The Rejection of Bloat</div>
+          <h3>No snap, no telemetry, no daemon sprawl</h3>
+          <p>Only what you compile. The package manager tracks every file. <code>dante remove</code> actually removes things.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">IV</div>
+        <div>
+          <div class="num">Greed · The Hoarding of Cycles</div>
+          <h3>Performance above all</h3>
+          <p><code>vm.swappiness=10</code>, <code>vfs_cache_pressure=50</code>, ZRAM on <code>lz4</code>, BBR congestion control, nftables blocking all but SSH and ping.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">V</div>
+        <div>
+          <div class="num">Wrath · The GLIBC Oath</div>
+          <h3>glibc, always</h3>
+          <p>musl is for toys. Steam, NVIDIA drivers, proprietary CAD — they all work without symlink tricks. The 2% memory overhead buys 100% compatibility.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">VI</div>
+        <div>
+          <div class="num">Heresy · The XFS Covenant</div>
+          <h3>XFS for warriors</h3>
+          <p>ext4 is for people who hate their data. btrfs is for masochists. ZFS is for lawyers. Root is XFS with <code>ftype=1</code> and <code>inode64</code>.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">VII</div>
+        <div>
+          <div class="num">Violence · The Hell Language</div>
+          <h3>Impossible to write poorly</h3>
+          <p>Packages are written in <em>Hell</em> (<code>.hell</code>). Exceed 50 lines and the parser throws <code>BLASPHEMY_ERROR</code>.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">VIII</div>
+        <div>
+          <div class="num">Fraud · Trust Nothing</div>
+          <h3>SHA-256 + GPG, always</h3>
+          <p>Every binary package is checksummed and signature-verified. On any failure, Dante refuses and falls back to compiling from source.</p>
+        </div>
+      </div>
+      <div class="card circle reveal">
+        <div class="ring">IX</div>
+        <div>
+          <div class="num">Treachery · The DUR</div>
+          <h3>The Dante User Repository</h3>
+          <p>A public repository anyone can commit to. Submit a recipe; maintainers judge. The faithful install with <code>dante install -A</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="eyebrow">The Tablet</div>
+    <h2 class="reveal">The Ten Commandments, verbatim.</h2>
+    <table style="margin-top:2rem">
+      <thead><tr><th>#</th><th>Law</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>I</td><td>Init</td><td><code>s6</code> + <code>s6-rc</code>. systemd forbidden.</td></tr>
+        <tr><td>II</td><td>libc</td><td><code>glibc</code> always. musl rejected.</td></tr>
+        <tr><td>III</td><td>Filesystem</td><td><code>XFS</code> (<code>ftype=1 inode64</code>).</td></tr>
+        <tr><td>IV</td><td>Package manager</td><td><code>Dante</code>, written in Go.</td></tr>
+        <tr><td>V</td><td>Package language</td><td><code>Hell</code> (<code>.hell</code>), 50-line max.</td></tr>
+        <tr><td>VI</td><td>Kernel</td><td><code>linux-cachyos-bore</code>, 1000&nbsp;Hz, BORE.</td></tr>
+        <tr><td>VII</td><td>Bootloader</td><td><code>GRUB 2</code>, dark red/black, 3&nbsp;s timeout.</td></tr>
+        <tr><td>VIII</td><td>Installer</td><td>The Gates of Hell (TTY, cfdisk → XFS → chroot).</td></tr>
+        <tr><td>IX</td><td>Power user</td><td>Zsh + Powerlevel10k, ZRAM, nftables, sysctl.</td></tr>
+        <tr><td>X</td><td>Purity</td><td>No bloat. No placeholders. No mercy.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="font-family:var(--display); letter-spacing:.3em; color:var(--red-bright)">◆ &nbsp;ANTENORA&nbsp; ◆</div>
+    <p style="margin-top:.6rem; color:var(--muted)">Linux · "Inferno" 1.0.0 — The Ninth Circle of Speed</p>
+    <div class="repos">
+      <a href="https://github.com/AstralZX/Antenora-Linux">Antenora-Linux</a>
+      <a href="https://github.com/AstralZX/antenora-packages">antenora-packages</a>
+      <a href="https://github.com/AstralZX/antenora-dur">antenora-dur</a>
+      <a href="https://github.com/AstralZX/dante">dante</a>
+    </div>
+    <p class="legal">Licensed under the GNU Affero General Public License v3.0.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

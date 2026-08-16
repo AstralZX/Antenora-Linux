@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Install — Antenora Linux</title>
+  <meta name="description" content="Download and install Antenora Linux. Boot the ISO, run the Gates of Hell installer, and reboot into the promised land.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="index.html">Antenora<small>Linux</small></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="circles.html">Circles</a>
+      <a href="install.html" class="active">Install</a>
+      <a href="packages.html">Packages</a>
+      <a href="dur.html">DUR</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="container">
+    <div class="eyebrow">The Gates of Hell</div>
+    <h1>INSTALL</h1>
+    <p>One bootable ISO, one installer, and a machine reborn free of systemd.</p>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2 class="reveal">Download</h2>
+    <p class="lede reveal">Grab a prebuilt ISO from the releases, or build it entirely from source with <code>make iso</code>.</p>
+    <div class="cta-row reveal" style="justify-content:flex-start; margin-top:1.5rem">
+      <a class="btn primary" href="https://github.com/AstralZX/Antenora-Linux/releases">Download the ISO</a>
+      <a class="btn ghost" href="https://github.com/AstralZX/Antenora-Linux#building">Build from source</a>
+    </div>
+    <div class="terminal reveal" style="margin-top:2.5rem">
+      <div><span class="prompt">$</span> make iso</div>
+      <div class="dim"># toolchain → base-system → kernel → initramfs → grub-mkrescue</div>
+      <div class="ok">:: ISO written: dist/iso/antenora-1.0.0-x86_64.iso</div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="eyebrow">The Descent</div>
+    <h2 class="reveal">The installation, step by step.</h2>
+    <div class="steps" style="margin-top:2.5rem">
+      <div class="step reveal"><div><h3>Boot the ISO</h3><p>BIOS or UEFI, GRUB will hand you the Gates of Hell installer.</p></div></div>
+      <div class="step reveal"><div><h3>Partition with cfdisk</h3><p>Make a root partition — and an EFI partition on UEFI systems.</p></div></div>
+      <div class="step reveal"><div><h3>Format as XFS</h3><p>Root is formatted <code>mkfs.xfs -n ftype=1 -d inode64</code>. EFI is FAT32. No questions asked.</p></div></div>
+      <div class="step reveal"><div><h3>Extract the Stage3</h3><p>The self-hosting base (s6, glibc, Dante) lands in the new root, then chroot.</p></div></div>
+      <div class="step reveal"><div><h3>Kernel &amp; base system</h3><p><code>linux-cachyos-bore</code> (binary by default; source if you're a masochist) plus the base.</p></div></div>
+      <div class="step reveal"><div><h3>Choose your desktop</h3><p>KDE Plasma, GNOME, SwayWM — or none, headless warrior mode.</p></div></div>
+      <div class="step reveal"><div><h3>User, sudo, SSH</h3><p>Your user joins <code>wheel</code>, sudo is configured, SSH keys are generated.</p></div></div>
+      <div class="step reveal"><div><h3>GRUB</h3><p><code>grub-mkconfig</code>, a 3-second timeout, the dark red/black theme.</p></div></div>
+      <div class="step reveal"><div><h3>Reboot</h3><p>A winged lion. Then the promised land.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow">Requirements</div>
+    <h2 class="reveal">What you'll need.</h2>
+    <ul style="margin-top:1.5rem; color:var(--ink-dim); list-style:none">
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;A 64-bit <code>x86_64</code> machine (UEFI or BIOS)</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;At least 4&nbsp;GB of RAM, and disk for a real filesystem</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;A USB stick and <code>dd</code> — or the willingness to compile the world yourself</li>
+    </ul>
+    <p class="lede reveal" style="margin-top:2rem">The installer detects your hardware (<code>lspci</code>, <code>lsusb</code>) and pulls the right firmware. ZRAM (<code>lz4</code>) is enabled automatically — no swap partition. The firewall allows SSH and ping, and nothing else.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="font-family:var(--display); letter-spacing:.3em; color:var(--red-bright)">◆ &nbsp;ANTENORA&nbsp; ◆</div>
+    <p style="margin-top:.6rem; color:var(--muted)">Linux · "Inferno" 1.0.0 — The Ninth Circle of Speed</p>
+    <div class="repos">
+      <a href="https://github.com/AstralZX/Antenora-Linux">Antenora-Linux</a>
+      <a href="https://github.com/AstralZX/antenora-packages">antenora-packages</a>
+      <a href="https://github.com/AstralZX/antenora-dur">antenora-dur</a>
+      <a href="https://github.com/AstralZX/dante">dante</a>
+    </div>
+    <p class="legal">Licensed under the GNU Affero General Public License v3.0.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

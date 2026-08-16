@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Antenora Linux — The Ninth Circle of Speed</title>
+  <meta name="description" content="Antenora is a source-based Linux distribution. s6 init, glibc, XFS, the Dante package manager, and the Hell recipe language. No systemd, no bloat, no mercy.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="index.html">Antenora<small>Linux</small></a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="circles.html">Circles</a>
+      <a href="install.html">Install</a>
+      <a href="packages.html">Packages</a>
+      <a href="dur.html">DUR</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <canvas id="embers"></canvas>
+  <div class="hero-inner">
+    <div class="invocation">Abandon all hope, ye who enter here</div>
+    <h1>ANTENORA</h1>
+    <p class="subtitle">The Ninth Circle of Speed</p>
+    <pre class="crest">⠀⠀⠀⠀⠀⢰⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⠂⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢿⣿⣶⣄⠀⠀⠀⡀⠀⠀⢀⣠⣾⣿⡏⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠘⣿⣬⣽⣾⣿⡟⠛⣻⣵⣿⣛⣹⡿⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⣻⣷⠋⠀⣙⣿⣿⣟⡉⠈⢻⣷⣅⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣾⡏⣿⣦⣾⠟⠋⠈⠻⢿⡦⣾⡞⣿⡆⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢸⣿⣼⣿⣯⡁⠀⠀⠀⠀⠀⣹⡿⣴⣼⣿⠀⠀⠀⠀⠀
+⠀⠀⠀⣠⣴⣿⣿⡁⠀⢿⣇⠀⠀⠀⠀⢠⣿⠃⠈⣻⢿⣦⣄⠀⠀⠀
+⢀⣴⣾⣿⣿⣶⣿⣷⣶⣞⣿⣴⣶⣦⣴⣮⣽⣤⣰⣿⣣⣽⣿⣷⣤⡀
+⠀⠀⠀⠀⠀⠀⠀⠻⣷⣤⣻⢷⠀⠀⣸⡿⣡⣾⡿⠁⠉⠉⠉⠉⠉⠉
+⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠻⡿⢿⢿⣿⠻⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣷⣾⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</pre>
+    <div class="cta-row">
+      <a class="btn primary" href="install.html">Descend — Install</a>
+      <a class="btn ghost" href="circles.html">Read the Circles</a>
+    </div>
+  </div>
+  <div class="scroll-hint">DESCEND</div>
+</header>
+
+<section class="quote-strip">
+  <div class="container">
+    <blockquote data-quote></blockquote>
+    <cite data-quote-cite></cite>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow">Canto I · The Descent</div>
+    <h2 class="reveal">A Linux distribution with no compromises.</h2>
+    <p class="lede reveal">Antenora is built from raw source by its own package manager, booted by <strong>s6</strong>, on <strong>glibc</strong> and <strong>XFS</strong>, with a kernel tuned for the ninth circle. No systemd. No Arch. No bloat. No mercy.</p>
+    <div class="grid three" style="margin-top:2.5rem">
+      <div class="card reveal">
+        <div class="num">I</div>
+        <h3>s6 init</h3>
+        <p>systemd is forbidden. Every service is a script, supervised by s6-rc. Boot is measured in milliseconds.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">II</div>
+        <h3>Dante &amp; Hell</h3>
+        <p>A package manager written in Go, driving packages described in <em>Hell</em> — a recipe language impossible to write poorly.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">III</div>
+        <h3>linux-cachyos-bore</h3>
+        <p>1000&nbsp;Hz, preempt-dynamic, the BORE scheduler, <code>-O3 -march=native</code>. Minimal latency, maximum FPS.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="eyebrow">Canto II · The Tool</div>
+    <h2 class="reveal">A glimpse of the infernal machine.</h2>
+    <div class="terminal reveal" style="margin-top:2rem">
+      <div><span class="prompt">$</span> dante install base-system</div>
+      <div class="dim">Resolved 9 package(s): [glibc s6 s6-linux-init grub sudo zsh networkmanager pipewire nftables]</div>
+      <div class="dim">Building glibc 2.39 ...</div>
+      <div class="ok">:: glibc 2.39 installed (119 files)</div>
+      <div class="dim">Building s6 2.12.0.4 ...</div>
+      <div class="ok">:: s6 2.12.0.4 installed (48 files)</div>
+      <div class="ok">:: Installed base-system</div>
+      <div><span class="prompt">$</span> dante install -A hyprland <span class="dim"># from the DUR</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow">Canto III · The Circles</div>
+    <h2 class="reveal">Nine circles await the faithful.</h2>
+    <p class="lede reveal">The philosophy is mapped, as it should be, to the nine circles of Hell.</p>
+    <div class="cta-row reveal" style="justify-content:flex-start; margin-top:2rem">
+      <a class="btn primary" href="circles.html">Enter the Circles</a>
+      <a class="btn ghost" href="packages.html">The Dante package manager</a>
+      <a class="btn ghost" href="dur.html">The DUR</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="font-family:var(--display); letter-spacing:.3em; color:var(--red-bright)">◆ &nbsp;ANTENORA&nbsp; ◆</div>
+    <p style="margin-top:.6rem; color:var(--muted)">Linux · "Inferno" 1.0.0 — The Ninth Circle of Speed</p>
+    <div class="repos">
+      <a href="https://github.com/AstralZX/Antenora-Linux">Antenora-Linux</a>
+      <a href="https://github.com/AstralZX/antenora-packages">antenora-packages</a>
+      <a href="https://github.com/AstralZX/antenora-dur">antenora-dur</a>
+      <a href="https://github.com/AstralZX/dante">dante</a>
+    </div>
+    <p class="legal">Licensed under the GNU Affero General Public License v3.0. The trident crest is drawn in blood.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

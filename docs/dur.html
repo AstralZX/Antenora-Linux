@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The DUR — Dante User Repository — Antenora Linux</title>
+  <meta name="description" content="The Dante User Repository — a public package repository anyone can commit to. Submit a .hell recipe and share it with the ninth circle.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="index.html">Antenora<small>Linux</small></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="circles.html">Circles</a>
+      <a href="install.html">Install</a>
+      <a href="packages.html">Packages</a>
+      <a href="dur.html" class="active">DUR</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="container">
+    <div class="eyebrow">The Dante User Repository</div>
+    <h1>THE DUR</h1>
+    <p>The ninth circle is a democracy of recipes. The DUR is a public repository <strong>anyone can commit to</strong>.</p>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2 class="reveal">Trust nothing. Review everything.</h2>
+    <p class="lede reveal">Like the AUR, the DUR holds build recipes, not binaries. Any user may submit a <code>.hell</code> recipe; maintainers review and may promote stable packages into the official repositories.</p>
+    <div class="grid three" style="margin-top:2.5rem">
+      <div class="card reveal">
+        <div class="num">Submit</div>
+        <h3>One command</h3>
+        <p><code>scripts/dur-submit.sh my-package.hell</code> clones the DUR, adds your recipe, and pushes it.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">Install</div>
+        <h3>From anywhere</h3>
+        <p><code>dante install -A my-package</code> pulls and builds it, resolving deps from official + DUR.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">Ascend</div>
+        <h3>Be promoted</h3>
+        <p>Well-maintained recipes graduate into <code>antenora-packages</code>. Treachery rewarded.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="eyebrow">The Rite</div>
+    <h2 class="reveal">Contribute in three steps.</h2>
+    <div class="steps" style="margin-top:2.5rem">
+      <div class="step reveal"><div><h3>Write the recipe</h3><p>Start from <code>docs/recipe-template.hell</code>. Keep it under 50 lines.</p></div></div>
+      <div class="step reveal"><div><h3>Validate it</h3><p><code>dante compile my-package.hell -</code> — if it parses, it's worthy.</p></div></div>
+      <div class="step reveal"><div><h3>Ship it</h3><p><code>dur-submit.sh my-package.hell</code>, or open a pull request under <code>recipes/</code>.</p></div></div>
+    </div>
+    <div class="terminal reveal" style="margin-top:2rem">
+      <div><span class="prompt">$</span> dante dur            <span class="dim"># list DUR packages</span></div>
+      <div><span class="prompt">$</span> dante dur-search sway <span class="dim"># search the DUR</span></div>
+      <div><span class="prompt">$</span> dante install -A hyprland</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow">The Law</div>
+    <h2 class="reveal">The rules of the pit.</h2>
+    <ul style="margin-top:1.5rem; color:var(--ink-dim); list-style:none">
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;A recipe must be <strong>50 lines or fewer</strong> — <code>BLASPHEMY_ERROR</code> otherwise.</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;Recipes build <strong>from source</strong>; no prebuilt blobs unless a signed binary fallback declares a SHA-256.</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;No malware, no miners, nothing that would embarrass the ninth circle.</li>
+    </ul>
+    <div class="cta-row reveal" style="justify-content:flex-start; margin-top:2rem">
+      <a class="btn primary" href="https://github.com/AstralZX/antenora-dur">Enter the DUR</a>
+      <a class="btn ghost" href="https://github.com/AstralZX/Antenora-Linux/blob/main/docs/hell.md">Read the Hell guide</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="font-family:var(--display); letter-spacing:.3em; color:var(--red-bright)">◆ &nbsp;ANTENORA&nbsp; ◆</div>
+    <p style="margin-top:.6rem; color:var(--muted)">Linux · "Inferno" 1.0.0 — The Ninth Circle of Speed</p>
+    <div class="repos">
+      <a href="https://github.com/AstralZX/Antenora-Linux">Antenora-Linux</a>
+      <a href="https://github.com/AstralZX/antenora-packages">antenora-packages</a>
+      <a href="https://github.com/AstralZX/antenora-dur">antenora-dur</a>
+      <a href="https://github.com/AstralZX/dante">dante</a>
+    </div>
+    <p class="legal">Licensed under the GNU Affero General Public License v3.0.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
