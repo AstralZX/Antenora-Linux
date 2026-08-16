@@ -1,8 +1,8 @@
-// Antenora — site behaviour: ember particles, scroll reveal, rotating quotes.
+// Antenora — site behaviour: ember particles, scroll reveal, rotating quotes,
+// scroll progress, and handbook TOC scrollspy.
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ---- Ember particles -------------------------------------------------------
 const QUOTES = [
   ["Abandon all hope, ye who enter here.", "Inferno, Canto III"],
   ["In the middle of the journey of our life I found myself within a dark woods where the straight way was lost.", "Inferno, Canto I"],
@@ -16,6 +16,7 @@ const QUOTES = [
   ["Do not be afraid; our fate cannot be taken from us; it is a gift.", "Inferno, Canto II"],
 ];
 
+// ---- Ember particles -------------------------------------------------------
 function startEmbers() {
   const canvas = document.getElementById("embers");
   if (!canvas || reduceMotion) return;
@@ -33,14 +34,14 @@ function startEmbers() {
     vx: (Math.random() - 0.5) * 0.3,
     vy: -(Math.random() * 0.7 + 0.15),
     a: Math.random() * 0.6 + 0.15,
-    hue: Math.random() < 0.75 ? 14 : 36, // red or ember
+    hue: Math.random() < 0.75 ? 14 : 36,
   }));
 
   function tick() {
     ctx.clearRect(0, 0, w, h);
     for (const e of embers) {
       e.x += e.vx; e.y += e.vy;
-      e.vy -= 0.002; // slow, like drifting ash
+      e.vy -= 0.002;
       e.a -= 0.0012;
       if (e.y < -10 || e.a <= 0) { e.y = h + 10; e.x = Math.random() * w; e.a = Math.random() * 0.6 + 0.2; }
       const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.r * 5);
@@ -86,8 +87,36 @@ function startQuote() {
   setInterval(next, 6500);
 }
 
+// ---- Scroll progress + TOC scrollspy ---------------------------------------
+function startScroll() {
+  const bar = document.getElementById("progress");
+  const toc = document.querySelectorAll(".toc a[href^='#']");
+  if (!bar && !toc.length) return;
+
+  const onScroll = () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    if (bar) bar.style.width = `${scrolled * 100}%`;
+
+    if (toc.length) {
+      let current = "";
+      toc.forEach((a) => {
+        const el = document.querySelector(a.getAttribute("href"));
+        if (el && el.getBoundingClientRect().top <= 120) current = a.getAttribute("href");
+      });
+      toc.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === current));
+    }
+  };
+
+  if (!reduceMotion) {
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+  onScroll();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   startEmbers();
   startReveal();
   startQuote();
+  startScroll();
 });

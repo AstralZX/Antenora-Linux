@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Antenora Handbook — Antenora Linux</title>
+  <meta name="description" content="The complete Antenora Handbook — from a blank disk to a fully installed, self-compiled system. The entire guide, one page.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="index.html">Antenora<small>Linux</small></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="circles.html">Circles</a>
+      <a href="handbook.html" class="active">Handbook</a>
+      <a href="install.html">Install</a>
+      <a href="packages.html">Packages</a>
+      <a href="hell.html">Hell</a>
+      <a href="dur.html">DUR</a>
+    </div>
+  </div>
+</nav>
+
+<div class="handbook">
+  <aside class="toc" id="toc">
+    <div class="toc-title">Antenora Handbook</div>
+    <div class="toc-part">Part I — Installing</div>
+    <a href="#ch1">1. Introduction &amp; requirements</a>
+    <a href="#ch2">2. Installation medium</a>
+    <a href="#ch3">3. Configuring the network</a>
+    <a href="#ch4">4. Preparing the disks</a>
+    <a href="#ch5">5. Formatting</a>
+    <a href="#ch6">6. Mounting</a>
+    <a href="#ch7">7. Installing the Stage3</a>
+    <a href="#ch8">8. Chrooting</a>
+    <a href="#ch9">9. Configuring the system</a>
+    <a href="#ch10">10. Installing packages</a>
+    <a href="#ch11">11. The bootloader</a>
+    <a href="#ch12">12. Finalizing</a>
+    <a href="#ch13">13. Rebooting</a>
+    <div class="toc-part">Part II — Working with Dante</div>
+    <a href="#ch14">14. Package management</a>
+    <a href="#ch15">15. The Hell language</a>
+    <a href="#ch16">16. The DUR</a>
+    <a href="#ch17">17. Configuration &amp; mirrors</a>
+    <a href="#ch18">18. The toolchain</a>
+    <a href="#ch19">19. Binary packages</a>
+    <div class="toc-part">Part III — Working with Antenora</div>
+    <a href="#ch20">20. s6 &amp; services</a>
+    <a href="#ch21">21. Logging</a>
+    <a href="#ch22">22. Users &amp; permissions</a>
+    <a href="#ch23">23. Networking</a>
+    <a href="#ch24">24. Time &amp; localization</a>
+    <a href="#ch25">25. Performance</a>
+    <a href="#ch26">26. Upgrading</a>
+    <a href="#ch27">27. Troubleshooting</a>
+  </aside>
+
+  <main class="hb">
+    <header class="page-hero">
+      <div class="eyebrow">The Complete Guide</div>
+      <h1>THE ANTENORA HANDBOOK</h1>
+      <p>From a blank disk to a fully installed, self-compiled system. The whole journey, one page.</p>
+    </header>
+
+    <section class="hb-section">
+      <div class="hb-part">Part I — Installing Antenora</div>
+
+      <h2 id="ch1">1 · Introduction &amp; requirements</h2>
+      <p>Antenora is a source-based distribution. The base system is compiled from source by <strong>Dante</strong>, its package manager. The init system is <strong>s6 + s6-rc</strong> (systemd is forbidden), the libc is <strong>glibc</strong>, the root filesystem is <strong>XFS</strong>.</p>
+      <p><strong>You need:</strong> an <code>x86_64</code> machine (UEFI or BIOS), a live medium, network, ≥ 4 GB RAM, ≥ 20 GB disk, and a root shell.</p>
+      <p><strong>Conventions:</strong> <code>/dev/sda</code> is the disk, <code>/dev/sda1</code> the EFI partition, <code>/dev/sda2</code> root. <em>Replace them with your own.</em></p>
+
+      <h2 id="ch2">2 · Choosing the installation medium</h2>
+      <p>Three ways in: the <strong>Antenora live ISO</strong> (blessed), <strong>any Linux live system</strong> (you only need <code>tar</code>, <code>xfsprogs</code>, <code>chroot</code>), or <strong>an existing Linux install</strong>.</p>
+      <pre class="code">$ make iso        <span class="c"># build the ISO from source</span></pre>
+
+      <h2 id="ch3">3 · Configuring the network</h2>
+      <p>The live environment uses NetworkManager.</p>
+      <pre class="code"># nmtui                                        <span class="c"># text UI — easiest</span>
+# nmcli device wifi connect "SSID" password "pass"
+# dhclient                                     <span class="c"># wired</span>
+# ping -c3 example.com</pre>
+
+      <h2 id="ch4">4 · Preparing the disks</h2>
+      <pre class="code"># ls /sys/firmware/efi/efivars                 <span class="c"># exists → UEFI</span>
+# cfdisk /dev/sda</pre>
+      <table>
+        <thead><tr><th>Scheme</th><th>Partitions</th></tr></thead>
+        <tbody>
+          <tr><td>UEFI + GPT</td><td><code>sda1</code> EFI (FAT32, 300M) · <code>sda2</code> root (XFS)</td></tr>
+          <tr><td>BIOS + MBR</td><td><code>sda1</code> root (XFS)</td></tr>
+          <tr><td>BIOS + GPT</td><td><code>sda1</code> BIOS boot (1M) · <code>sda2</code> root (XFS)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ch5">5 · Formatting the filesystems</h2>
+      <p>The Third Commandment: root is <strong>XFS</strong>.</p>
+      <pre class="code"># mkfs.xfs -f -n ftype=1 -d inode64 /dev/sda2
+# mkfs.fat -F32 /dev/sda1                       <span class="c"># UEFI</span></pre>
+      <p>Optional LUKS encryption:</p>
+      <pre class="code"># cryptsetup luksFormat /dev/sda2
+# cryptsetup open /dev/sda2 root
+# mkfs.xfs -f -n ftype=1 -d inode64 /dev/mapper/root</pre>
+
+      <h2 id="ch6">6 · Mounting</h2>
+      <pre class="code"># mount /dev/sda2 /mnt
+# mkdir -p /mnt/boot &amp;&amp; mount /dev/sda1 /mnt/boot</pre>
+
+      <h2 id="ch7">7 · Installing the Stage3</h2>
+      <p>The Stage3 is the self-hosting base: s6, glibc, and Dante — the bootstrap solved for you.</p>
+      <pre class="code"># wget https://github.com/AstralZX/Antenora-Linux/releases/latest/download/stage3-1.0.0-x86_64.tar.xz
+# tar -xJpf stage3-1.0.0-x86_64.tar.xz -C /mnt --numeric-owner</pre>
+
+      <h2 id="ch8">8 · Chrooting</h2>
+      <pre class="code"># cp /etc/resolv.conf /mnt/etc/resolv.conf
+# mount --bind /dev /mnt/dev &amp;&amp; mount --bind /dev/pts /mnt/dev/pts
+# mount --bind /proc /mnt/proc &amp;&amp; mount --bind /sys /mnt/sys &amp;&amp; mount --bind /run /mnt/run
+# chroot /mnt /bin/bash</pre>
+
+      <h2 id="ch9">9 · Configuring the system</h2>
+      <pre class="code"># echo "antenora" &gt; /etc/hostname
+# ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+# locale-gen
+# echo 'LANG=en_US.UTF-8' &gt; /etc/locale.conf</pre>
+      <p>Write <code>/etc/fstab</code> for your partitions.</p>
+
+      <h2 id="ch10">10 · Installing packages</h2>
+      <pre class="code"># dante sync
+# dante install base-system
+# dante install linux-cachyos-bore linux-firmware
+# dante install sway        <span class="c"># plasma / gnome / sway — or none</span></pre>
+
+      <h2 id="ch11">11 · Configuring the bootloader</h2>
+      <pre class="code"># /usr/lib/antenora/s6-init-setup.sh
+# /usr/lib/antenora/mkinitramfs.sh / /boot/initramfs-antenora.img boot/disk-boot/init
+# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Antenora
+# grub-mkconfig -o /boot/grub/grub.cfg</pre>
+
+      <h2 id="ch12">12 · Finalizing</h2>
+      <pre class="code"># useradd -m -G wheel -s /usr/bin/zsh you
+# passwd you &amp;&amp; passwd root
+# echo '%wheel ALL=(ALL:ALL) ALL' &gt; /etc/sudoers.d/10-wheel
+# su - you &amp;&amp; ssh-keygen -t ed25519 -C 'you@antenora' &amp;&amp; exit</pre>
+
+      <h2 id="ch13">13 · Rebooting</h2>
+      <pre class="code"># exit &amp;&amp; umount -R /mnt &amp;&amp; reboot</pre>
+      <p>First boot: ZRAM (<code>lz4</code>), SSH keys, nftables firewall. A winged lion appears.</p>
+    </section>
+
+    <section class="hb-section">
+      <div class="hb-part">Part II — Working with Dante</div>
+
+      <h2 id="ch14">14 · Package management</h2>
+      <pre class="code">dante sync               <span class="c"># update repos + DUR</span>
+dante install &lt;pkg&gt;       <span class="c"># resolve deps, compile, install</span>
+dante install -A &lt;pkg&gt;    <span class="c"># from the DUR</span>
+dante remove &lt;pkg&gt;        <span class="c"># uninstall + reverse-dep warnings</span>
+dante remove --orphans
+dante search &lt;term&gt;
+dante info &lt;pkg&gt;
+dante update
+dante clean
+dante toolchain
+dante mirror
+dante key
+dante dur
+dante dur-search &lt;term&gt;
+dante compile in.hell out.mk</pre>
+
+      <h2 id="ch15">15 · The Hell language</h2>
+      <p>Packages are written in <strong>Hell</strong> (<code>.hell</code>) — ~20 keywords, a 50-line cap, impossible to write poorly. <a href="hell.html">Read the full guide →</a></p>
+
+      <h2 id="ch16">16 · The DUR</h2>
+      <pre class="code">scripts/dur-submit.sh my-package.hell   <span class="c"># contribute</span>
+dante install -A my-package             <span class="c"># install</span></pre>
+
+      <h2 id="ch17">17 · Configuration &amp; mirrors</h2>
+      <pre class="code">BINARY="NO"        <span class="c"># "YES" prefers signed binary packages</span>
+MAKEFLAGS="-j4"    <span class="c"># parallel jobs</span>
+REPO_URL="https://github.com/AstralZX/antenora-packages.git"
+DUR_URL="https://github.com/AstralZX/antenora-dur.git"
+BINARY_MIRROR="https://cdn.antenora.org/packages"
+MIRROR_FILE="/etc/dante/mirrors.conf"
+CLEAN_SOURCE="YES"
+KEEP_DEPS="NO"</pre>
+      <p>Per-command override: <code>DANTE_BINARY=YES dante install linux-cachyos-bore</code>. Mirrors are one URL per line; <code>dante mirror</code> ranks them.</p>
+
+      <h2 id="ch18">18 · The toolchain</h2>
+      <pre class="code">dante toolchain
+scripts/toolchain.sh   <span class="c"># or, into a sysroot</span></pre>
+      <p>Bootstraps <code>linux-api-headers → gmp/mpfr/mpc/isl → binutils → gcc → make → autotools → cmake/meson/ninja</code>.</p>
+
+      <h2 id="ch19">19 · Binary packages</h2>
+      <p>Binaries are SHA-256 checksummed <strong>and</strong> GPG-signed. On any verification failure, Dante refuses and compiles from source.</p>
+    </section>
+
+    <section class="hb-section">
+      <div class="hb-part">Part III — Working with Antenora</div>
+
+      <h2 id="ch20">20 · s6 &amp; services</h2>
+      <pre class="code">s6-rc -u change &lt;service&gt;     <span class="c"># start</span>
+s6-rc -d change &lt;service&gt;     <span class="c"># stop</span>
+s6-rc -a list                 <span class="c"># list all</span>
+s6-start &lt;service&gt;            <span class="c"># alias</span>
+s6-stop  &lt;service&gt;</pre>
+      <p>Services live in <code>/etc/s6-rc/source/</code> — trivial scripts you can read and edit.</p>
+
+      <h2 id="ch21">21 · Logging</h2>
+      <pre class="code">tail -f /var/log/&lt;service&gt;/current</pre>
+
+      <h2 id="ch22">22 · Users &amp; permissions</h2>
+      <pre class="code">useradd -m -G wheel -s /usr/bin/zsh name
+passwd name
+usermod -aG wheel name</pre>
+
+      <h2 id="ch23">23 · Networking</h2>
+      <pre class="code">nmtui
+nmcli device wifi connect "SSID" password "pass"
+nmcli device status</pre>
+      <p>The nftables firewall blocks all inbound except SSH and ping, statefully.</p>
+
+      <h2 id="ch24">24 · Time &amp; localization</h2>
+      <pre class="code">timedatectl set-timezone Europe/Berlin
+timedatectl set-ntp true
+locale-gen</pre>
+
+      <h2 id="ch25">25 · Performance</h2>
+      <pre class="code">vm.vfs_cache_pressure = 50
+vm.swappiness = 10
+kernel.numa_balancing = 0</pre>
+      <p>ZRAM (<code>lz4</code>) is automatic; the kernel runs at 1000 Hz with the BORE scheduler.</p>
+
+      <h2 id="ch26">26 · Upgrading</h2>
+      <pre class="code">dante sync &amp;&amp; dante update
+/usr/lib/antenora/mkinitramfs.sh / /boot/initramfs-antenora.img boot/disk-boot/init
+grub-mkconfig -o /boot/grub/grub.cfg</pre>
+
+      <h2 id="ch27">27 · Troubleshooting</h2>
+      <p><strong>Boot fails → busybox shell.</strong> The initramfs couldn't mount root. Check <code>root=</code>, or <code>xfs_repair /dev/sda2</code>.</p>
+      <p><strong>A package fails to build.</strong> Read the error, <code>dante info &lt;pkg&gt;</code>, file a bug.</p>
+      <p><strong>A service won't start.</strong> <code>s6-rc -a list &lt;service&gt;</code> and read its <code>run</code> script and log.</p>
+    </section>
+
+    <p class="rule" style="text-align:center; margin-top:3rem">◆ ◆ ◆</p>
+    <p style="text-align:center; color:var(--muted)">A winged lion appears. The Ninth Circle of Speed is yours.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="container">
+    <div style="font-family:var(--display); letter-spacing:.3em; color:var(--red-bright)">◆ &nbsp;ANTENORA&nbsp; ◆</div>
+    <p style="margin-top:.6rem; color:var(--muted)">Linux · "Inferno" 1.0.0 — The Ninth Circle of Speed</p>
+    <div class="repos">
+      <a href="https://github.com/AstralZX/Antenora-Linux">Antenora-Linux</a>
+      <a href="https://github.com/AstralZX/antenora-packages">antenora-packages</a>
+      <a href="https://github.com/AstralZX/antenora-dur">antenora-dur</a>
+      <a href="https://github.com/AstralZX/dante">dante</a>
+    </div>
+    <p class="legal">Licensed under the GNU Affero General Public License v3.0.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
