@@ -34,7 +34,6 @@ cp -a "$REPO_DIR/sysctl/." "$ROOTFS/etc/sysctl.d/"
 mkdir -p "$ROOTFS/usr/lib/antenora"
 install -Dm755 "$REPO_DIR/scripts/mkinitramfs.sh" "$ROOTFS/usr/lib/antenora/mkinitramfs.sh"
 install -Dm755 "$REPO_DIR/scripts/s6-init-setup.sh" "$ROOTFS/usr/lib/antenora/s6-init-setup.sh"
-install -Dm755 "$REPO_DIR/scripts/install.sh" "$ROOTFS/usr/local/bin/install-antenora"
 cp -a "$REPO_DIR/boot" "$ROOTFS/usr/lib/antenora/boot"
 
 # --- identity --------------------------------------------------------------
@@ -54,7 +53,7 @@ EOF
 cat > "$ROOTFS/etc/dante/dante.conf" <<EOF
 # Dante Package Manager Configuration
 BINARY="YES"
-MAKEFLAGS="-j\$(nproc)"
+MAKEFLAGS="-j4"
 REPO_URL="https://github.com/AstralZX/antenora-packages.git"
 DUR_URL="https://github.com/AstralZX/antenora-dur.git"
 BINARY_MIRROR="https://cdn.antenora.org/packages"

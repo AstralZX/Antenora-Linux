@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Interpreter executes a parsed Hell package's build, install and post_install
@@ -56,6 +57,13 @@ func (in *Interpreter) Setup(pkg *Package, jobs string) {
 			in.Env["HELL_LDFLAGS"] = a.LDFlags
 		}
 	}
+	// Export real CFLAGS/LDFLAGS so autotools/make honour the arch flags.
+	if in.Env["HELL_CFLAGS"] != "" {
+		in.Env["CFLAGS"] = in.Env["HELL_CFLAGS"]
+	}
+	if in.Env["HELL_LDFLAGS"] != "" {
+		in.Env["LDFLAGS"] = in.Env["HELL_LDFLAGS"]
+	}
 }
 
 // Exec runs a sequence of statements, short-circuiting on the first error.
@@ -89,32 +97,40 @@ func (in *Interpreter) execStmt(s Stmt) error {
 		}
 		return applyPatch(in.SrcDir, patchFile)
 	case "mkdir":
-		path := in.rooted(expandEnv(s.Args[0], in.Env))
-		if in.DryRun {
+		path := in.resolvePath(expandEnv(s.Args[0], in.Env))
+		if in.DryRun || in.Verbose {
 			fmt.Fprintf(in.Out, "  + mkdir -p %s\n", path)
+		}
+		if in.DryRun {
 			return nil
 		}
 		return os.MkdirAll(path, 0o755)
 	case "cp":
-		src := in.rooted(expandEnv(s.Args[0], in.Env))
-		dst := in.rooted(expandEnv(s.Args[1], in.Env))
-		if in.DryRun {
+		src := in.resolvePath(expandEnv(s.Args[0], in.Env))
+		dst := in.resolvePath(expandEnv(s.Args[1], in.Env))
+		if in.DryRun || in.Verbose {
 			fmt.Fprintf(in.Out, "  + cp -a %s %s\n", src, dst)
+		}
+		if in.DryRun {
 			return nil
 		}
 		return copyPath(src, dst)
 	case "rm":
-		path := in.rooted(expandEnv(s.Args[0], in.Env))
-		if in.DryRun {
+		path := in.resolvePath(expandEnv(s.Args[0], in.Env))
+		if in.DryRun || in.Verbose {
 			fmt.Fprintf(in.Out, "  + rm -rf %s\n", path)
+		}
+		if in.DryRun {
 			return nil
 		}
 		return os.RemoveAll(path)
 	case "ln":
 		target := expandEnv(s.Args[0], in.Env)
-		link := in.rooted(expandEnv(s.Args[1], in.Env))
-		if in.DryRun {
+		link := in.resolvePath(expandEnv(s.Args[1], in.Env))
+		if in.DryRun || in.Verbose {
 			fmt.Fprintf(in.Out, "  + ln -s %s %s\n", target, link)
+		}
+		if in.DryRun {
 			return nil
 		}
 		if err := os.MkdirAll(filepath.Dir(link), 0o755); err != nil {
@@ -128,14 +144,35 @@ func (in *Interpreter) execStmt(s Stmt) error {
 	return fmt.Errorf("unknown instruction %q", s.Op)
 }
 
-// rooted maps an absolute path into the staging root so that install steps
-// using absolute paths do not touch the host filesystem.
+// rooted maps an absolute install path into the staging root so that install
+// steps using absolute paths do not touch the host filesystem. Paths already
+// inside the source tree or the staging root are left untouched.
 func (in *Interpreter) rooted(p string) string {
 	if in.Root == "" || in.Root == "/" {
 		return p
 	}
+	if !filepath.IsAbs(p) {
+		return p
+	}
+	if in.SrcDir != "" && (p == in.SrcDir || strings.HasPrefix(p, in.SrcDir+string(os.PathSeparator))) {
+		return p
+	}
+	if p == in.Root || strings.HasPrefix(p, in.Root+string(os.PathSeparator)) {
+		return p
+	}
+	return filepath.Join(in.Root, p)
+}
+
+// resolvePath turns a Hell path argument into a real filesystem path.
+// Absolute paths are mapped into the staging root (unless they already live
+// under the source tree or staging root); relative paths are resolved against
+// the source directory, matching the working directory of `run` commands.
+func (in *Interpreter) resolvePath(p string) string {
 	if filepath.IsAbs(p) {
-		return filepath.Join(in.Root, p)
+		return in.rooted(p)
+	}
+	if in.SrcDir != "" {
+		return filepath.Join(in.SrcDir, p)
 	}
 	return p
 }

@@ -50,6 +50,8 @@ fi
 # --- 2. base system from source --------------------------------------------
 red "Building the Antenora base system from source..."
 export DANTE_ROOT="$SYSROOT"
+mkdir -p "$SYSROOT/var/lib/dante/repo"
+cp -a "$ROOT/recipes/." "$SYSROOT/var/lib/dante/repo/"
 "$DANTE" install base-system
 "$DANTE" install linux-cachyos-bore
 "$DANTE" install linux-firmware
@@ -61,7 +63,6 @@ cp -a "$ROOT/rootfs/." "$SYSROOT/"
 mkdir -p "$SYSROOT/etc/sysctl.d"
 cp -a "$ROOT/sysctl/." "$SYSROOT/etc/sysctl.d/"
 install -Dm755 "$DANTE" "$SYSROOT/usr/bin/dante"
-install -Dm755 "$ROOT/scripts/install.sh" "$SYSROOT/usr/local/bin/install-antenora"
 # ship the initramfs tooling so the installed system can rebuild its initramfs
 install -Dm755 "$ROOT/scripts/mkinitramfs.sh" "$SYSROOT/usr/lib/antenora/mkinitramfs.sh"
 cp -a "$ROOT/boot" "$SYSROOT/usr/lib/antenora/boot"

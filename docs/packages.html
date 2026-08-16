@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Packages — Dante &amp; Hell — Antenora Linux</title>
-  <meta name="description" content="Dante, the Antenora package manager, and Hell, the recipe language. Source-based with signed binary fallbacks.">
+  <title>Dante — The Package Manager — Antenora Linux</title>
+  <meta name="description" content="Dante is Antenora's source-based package manager, written in Go. Source-first with signed binary fallbacks, the DUR, and mirror failover.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -21,6 +21,7 @@
       <a href="circles.html">Circles</a>
       <a href="install.html">Install</a>
       <a href="packages.html" class="active">Packages</a>
+      <a href="hell.html">Hell</a>
       <a href="dur.html">DUR</a>
     </div>
   </div>
@@ -29,40 +30,91 @@
 <header class="page-hero">
   <div class="container">
     <div class="eyebrow">The Package Manager</div>
-    <h1>DANTE &amp; HELL</h1>
-    <p>Dante is a source-based package manager written in Go. Hell is the recipe language. Managing packages is a journey through Hell.</p>
+    <h1>DANTE</h1>
+    <p>Written in Go. Source-based like Gentoo, with signed binary fallbacks. Because managing packages is a journey through Hell.</p>
   </div>
 </header>
 
 <section>
   <div class="container">
-    <h2 class="reveal">Dante</h2>
-    <div class="terminal reveal" style="margin-top:1.5rem">
-      <div><span class="prompt">$</span> dante sync                  <span class="dim"># update repos + DUR</span></div>
-      <div><span class="prompt">$</span> dante install base-system    <span class="dim"># resolve deps, compile, install</span></div>
-      <div><span class="prompt">$</span> dante install -A hyprland    <span class="dim"># from the DUR</span></div>
-      <div><span class="prompt">$</span> dante remove pkgname         <span class="dim"># uninstall + reverse-dep warnings</span></div>
-      <div><span class="prompt">$</span> dante search term            <span class="dim"># search official + DUR</span></div>
-      <div><span class="prompt">$</span> dante info pkgname           <span class="dim"># metadata + binary availability</span></div>
-      <div><span class="prompt">$</span> dante update                 <span class="dim"># version-aware upgrade</span></div>
-      <div><span class="prompt">$</span> dante toolchain              <span class="dim"># bootstrap the build toolchain</span></div>
-      <div><span class="prompt">$</span> dante mirror                 <span class="dim"># test + rank binary mirrors</span></div>
-    </div>
+    <h2 class="reveal">The commands.</h2>
+    <table style="margin-top:1.5rem">
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>dante sync</code></td><td>Clone / update the official repos + the DUR (git).</td></tr>
+        <tr><td><code>dante install &lt;pkg&gt;</code></td><td>Resolve deps (topological sort), then compile from source or fetch a signed binary.</td></tr>
+        <tr><td><code>dante install -A &lt;pkg&gt;</code></td><td>Install from the DUR (user repository).</td></tr>
+        <tr><td><code>dante remove &lt;pkg&gt;</code></td><td>Uninstall, warning about reverse dependencies.</td></tr>
+        <tr><td><code>dante remove --orphans</code></td><td>Remove packages no longer required.</td></tr>
+        <tr><td><code>dante search &lt;term&gt;</code></td><td>Search names + descriptions, official and DUR.</td></tr>
+        <tr><td><code>dante info &lt;pkg&gt;</code></td><td>Metadata, dependencies, binary availability.</td></tr>
+        <tr><td><code>dante update</code></td><td>Version-aware upgrade of everything installed.</td></tr>
+        <tr><td><code>dante clean</code></td><td>Purge cached sources and build directories.</td></tr>
+        <tr><td><code>dante toolchain</code></td><td>Bootstrap the build toolchain from source.</td></tr>
+        <tr><td><code>dante mirror</code></td><td>Test and rank binary mirrors by latency.</td></tr>
+        <tr><td><code>dante key</code></td><td>Import the Antenora maintainer GPG key.</td></tr>
+        <tr><td><code>dante dur</code></td><td>List DUR packages.</td></tr>
+        <tr><td><code>dante dur-search &lt;term&gt;</code></td><td>Search the DUR only.</td></tr>
+        <tr><td><code>dante compile in.hell out.mk</code></td><td>Compile a Hell recipe to a standalone Makefile.</td></tr>
+        <tr><td><code>dante gen-manifest &lt;dir&gt;</code></td><td>Regenerate a repo's manifest.yaml from its recipes.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="eyebrow">Configuration</div>
+    <h2 class="reveal">/etc/dante/dante.conf</h2>
+    <div class="code reveal" style="margin-top:1.5rem"><pre><span class="c"># Dante Package Manager Configuration</span>
+<span class="v">BINARY</span>=<span class="s">"NO"</span>       <span class="c"># "YES" prefers signed binary packages</span>
+<span class="v">MAKEFLAGS</span>=<span class="s">"-j4"</span>   <span class="c"># parallel jobs (raise only if you have the RAM)</span>
+<span class="v">PARALLEL</span>=<span class="s">"4"</span>     <span class="c"># concurrent package builds</span>
+
+<span class="v">REPO_URL</span>=<span class="s">"https://github.com/AstralZX/antenora-packages.git"</span>
+<span class="v">DUR_URL</span>=<span class="s">"https://github.com/AstralZX/antenora-dur.git"</span>
+<span class="v">BINARY_MIRROR</span>=<span class="s">"https://cdn.antenora.org/packages"</span>
+<span class="v">MIRROR_FILE</span>=<span class="s">"/etc/dante/mirrors.conf"</span>
+
+<span class="v">CLEAN_SOURCE</span>=<span class="s">"YES"</span>  <span class="c"># remove source after build</span>
+<span class="v">KEEP_DEPS</span>=<span class="s">"NO"</span>    <span class="c"># remove deps when removing a package</span></pre></div>
+    <p class="lede reveal" style="margin-top:1.5rem">Every key is also overridable per-command with a <code>DANTE_*</code> env var — e.g. <code>DANTE_BINARY=YES dante install linux-cachyos-bore</code>.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="reveal">How it works.</h2>
     <div class="grid three" style="margin-top:2rem">
       <div class="card reveal">
         <div class="num">Resolution</div>
         <h3>Topological sort</h3>
-        <p>Dependencies are resolved depth-first, cycles are reported in full. No package installs out of order.</p>
+        <p>Dependencies resolve depth-first; a cycle is reported in full — <code>a → b → c → a</code> — and the install aborts.</p>
       </div>
       <div class="card reveal">
         <div class="num">Binaries</div>
-        <h3>Signed &amp; verified</h3>
-        <p>SHA-256 checksum + GPG signature before any binary is trusted. On failure, it compiles from source instead.</p>
+        <h3>Verified or rebuilt</h3>
+        <p>Download → SHA-256 → GPG signature → extract. Any failure falls back to compiling from source. Trust nothing.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">Mirrors</div>
+        <h3>Ordered failover</h3>
+        <p><code>/etc/dante/mirrors.conf</code> lists mirrors in preference order; <code>dante mirror</code> ranks them by latency.</p>
       </div>
       <div class="card reveal">
         <div class="num">Tracking</div>
         <h3>Every file known</h3>
-        <p>Each install is recorded with its file list. Removal is clean, reverse dependencies are warned about.</p>
+        <p>Each install records its file list in <code>/var/lib/dante/db</code>. Removal is clean and warns about dependents.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">Versions</div>
+        <h3>Semantic compare</h3>
+        <p><code>6.10 &gt; 6.9</code>, <code>1.0 &gt; 1.0_rc1</code>. <code>dante update</code> upgrades only what's genuinely newer.</p>
+      </div>
+      <div class="card reveal">
+        <div class="num">Bootstrap</div>
+        <h3>Self-hosting</h3>
+        <p>Dante is a single static Go binary. It runs before glibc exists — which is how it builds glibc.</p>
       </div>
     </div>
   </div>
@@ -70,56 +122,17 @@
 
 <section class="alt">
   <div class="container">
-    <div class="eyebrow">The Language</div>
-    <h2 class="reveal">Hell — a recipe in 30 seconds.</h2>
-    <div class="code reveal" style="margin-top:1.5rem"><pre><span class="c"># curl.hell</span>
-<span class="k">package</span> <span class="s">"curl"</span> <span class="k">version</span> <span class="s">"8.8.0"</span> {
-    <span class="k">source</span> <span class="s">"https://github.com/curl/curl/releases/download/8.8.0/curl-8.8.0.tar.xz"</span>
-    <span class="k">depends</span> <span class="s">"openssl"</span> <span class="s">"zlib"</span> <span class="s">"ca-certificates"</span>
-
-    <span class="k">arch</span> x86_64 { <span class="k">cflags</span> <span class="s">"-march=native -O3 -pipe"</span> }
-
-    <span class="k">build</span>   { <span class="k">run</span> <span class="s">"./configure --prefix=/usr --with-openssl"</span>
-               <span class="k">run</span> <span class="s">"make -j$HELL_JOBS"</span> }
-    <span class="k">install</span> { <span class="k">run</span> <span class="s">"make install DESTDIR=$HELL_ROOT"</span> }
-
-    <span class="k">binary</span> <span class="s">"https://cdn.antenora.org/packages/curl-8.8.0-x86_64.db"</span> {
-        <span class="k">sha256</span> <span class="s">"a1b2c3d4e5f6..."</span>
-    }
-}</pre></div>
-    <p class="lede reveal" style="margin-top:1.5rem">Whitespace-insensitive, <code>#</code> comments, ~20 keywords, and a hard 50-line limit — exceed it and the parser throws <code>BLASPHEMY_ERROR</code>. Read the <a href="https://github.com/AstralZX/Antenora-Linux/blob/main/docs/hell.md">full language guide</a>.</p>
-  </div>
-</section>
-
-<section>
-  <div class="container">
     <div class="eyebrow">The Repositories</div>
     <h2 class="reveal">Four repositories, one infernal whole.</h2>
     <div class="grid two" style="margin-top:2rem">
-      <div class="card reveal">
-        <div class="num">The OS</div>
-        <h3>Antenora-Linux</h3>
-        <p>Installer, ISO profile, kernel config, themes, s6 services, docs.</p>
-        <a href="https://github.com/AstralZX/Antenora-Linux">github.com/AstralZX/Antenora-Linux</a>
-      </div>
-      <div class="card reveal">
-        <div class="num">The packages</div>
-        <h3>antenora-packages</h3>
-        <p>The central package repository — every <code>.hell</code> recipe and the manifest.</p>
-        <a href="https://github.com/AstralZX/antenora-packages">github.com/AstralZX/antenora-packages</a>
-      </div>
-      <div class="card reveal">
-        <div class="num">The manager</div>
-        <h3>dante</h3>
-        <p>The package manager alone — <code>cmd/</code>, <code>pkg/</code>, the Go module.</p>
-        <a href="https://github.com/AstralZX/dante">github.com/AstralZX/dante</a>
-      </div>
-      <div class="card reveal">
-        <div class="num">The community</div>
-        <h3>antenora-dur</h3>
-        <p>The Dante User Repository — public, anyone can commit.</p>
-        <a href="https://github.com/AstralZX/antenora-dur">github.com/AstralZX/antenora-dur</a>
-      </div>
+      <div class="card reveal"><div class="num">The OS</div><h3>Antenora-Linux</h3><p>Install handbook, ISO profile, kernel config, themes, s6 services, docs.</p><a href="https://github.com/AstralZX/Antenora-Linux">github.com/AstralZX/Antenora-Linux</a></div>
+      <div class="card reveal"><div class="num">The packages</div><h3>antenora-packages</h3><p>The central package repository — every <code>.hell</code> recipe and the manifest.</p><a href="https://github.com/AstralZX/antenora-packages">github.com/AstralZX/antenora-packages</a></div>
+      <div class="card reveal"><div class="num">The manager</div><h3>dante</h3><p>The package manager alone — <code>cmd/</code>, <code>pkg/</code>, the Go module.</p><a href="https://github.com/AstralZX/dante">github.com/AstralZX/dante</a></div>
+      <div class="card reveal"><div class="num">The community</div><h3>antenora-dur</h3><p>The Dante User Repository — public, anyone can commit.</p><a href="https://github.com/AstralZX/antenora-dur">github.com/AstralZX/antenora-dur</a></div>
+    </div>
+    <div class="cta-row reveal" style="justify-content:flex-start; margin-top:2.5rem">
+      <a class="btn primary" href="hell.html">Learn the Hell language</a>
+      <a class="btn ghost" href="dur.html">The DUR</a>
     </div>
   </div>
 </section>

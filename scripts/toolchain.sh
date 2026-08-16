@@ -10,7 +10,7 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SYSROOT="${DANTE_SYSROOT:-/opt/antenora-toolchain}"
+SYSROOT="${DANTE_SYSROOT:-$REPO_DIR/dist/sysroot}"
 JOBS="$(nproc)"
 
 ORDER=(
@@ -39,12 +39,22 @@ ORDER=(
 echo ":: Antenora toolchain bootstrap -> $SYSROOT (jobs=$JOBS)"
 mkdir -p "$SYSROOT"
 
+# seed the local recipe repository into the sysroot so `dante` can resolve
+mkdir -p "$SYSROOT/var/lib/dante/repo"
+cp -a "$REPO_DIR/recipes/." "$SYSROOT/var/lib/dante/repo/"
+
+# use the prebuilt dante binary (avoids recompiling on every package)
+DANTE="$REPO_DIR/dist/dante"
+if [ ! -x "$DANTE" ]; then
+    CGO_ENABLED=0 go -C "$REPO_DIR" build -trimpath -ldflags '-s -w' -o "$DANTE" ./cmd/dante
+fi
+
 for pkg in "${ORDER[@]}"; do
     recipe="$REPO_DIR/recipes/$pkg.hell"
     [ -f "$recipe" ] || { echo "!! missing recipe $recipe, skipping"; continue; }
     echo
     echo ":: Building $pkg ..."
-    DANTE_ROOT="$SYSROOT" go -C "$REPO_DIR" run ./cmd/dante install "$pkg" || {
+    DANTE_ROOT="$SYSROOT" "$DANTE" install "$pkg" || {
         echo "!! $pkg failed to build"; exit 1
     }
 done

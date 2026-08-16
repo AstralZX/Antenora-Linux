@@ -4,12 +4,12 @@ package "binutils" version "2.42" {
     depends "zlib"
 
     arch x86_64 {
-        cflags "-march=native -O3 -pipe"
+        cflags "-march=native -O3 -pipe -std=gnu17"
     }
 
     build {
         mkdir "$HELL_SRC_DIR/build"
-        run "cd build && ../configure --prefix=/usr --enable-gold --enable-plugins --enable-lto"
+        run "cd build && ../configure --prefix=/usr --enable-gold --enable-plugins --enable-lto --enable-gprofng=no"
         run "cd build && make -j$HELL_JOBS"
     }
 

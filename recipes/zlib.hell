@@ -1,6 +1,6 @@
 package "zlib" version "1.3.1" {
     description "zlib compression library"
-    source "https://zlib.net/zlib-1.3.1.tar.gz"
+    source "https://zlib.net/fossils/zlib-1.3.1.tar.gz"
 
     build {
         run "./configure --prefix=/usr"

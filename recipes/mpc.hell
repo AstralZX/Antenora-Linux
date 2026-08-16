@@ -3,6 +3,8 @@ package "mpc" version "1.3.1" {
     source "https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"
     depends "mpfr"
 
+    cflags "-O2 -std=gnu17 -pipe"
+
     build {
         run "./configure --prefix=/usr"
         run "make -j$HELL_JOBS"

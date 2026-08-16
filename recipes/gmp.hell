@@ -2,6 +2,8 @@ package "gmp" version "6.3.0" {
     description "GNU Multiple Precision arithmetic library"
     source "https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz"
 
+    cflags "-O2 -std=gnu17 -pipe"
+
     build {
         run "./configure --prefix=/usr --enable-cxx"
         run "make -j$HELL_JOBS"

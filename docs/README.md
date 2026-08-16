@@ -34,7 +34,7 @@ dogma, fast to the point of disbelief.
 | V | Package language | **Hell** (`.hell`), 50-line max (`BLASPHEMY_ERROR`) |
 | VI | Kernel | **linux-cachyos-bore** — 1000Hz, preempt-dynamic, BORE, `-O3 -march=native` |
 | VII | Bootloader | **GRUB 2**, dark red/black, 3s timeout |
-| VIII | Installer | **The Gates of Hell** (TTY, cfdisk → XFS → chroot → reboot) |
+| VIII | Install | **Manual** — the [Antenora Handbook](install-guide.md), by hand |
 | IX | Power user | Zsh + Powerlevel10k, ZRAM `lz4`, nftables, sysctl |
 | X | Purity | No bloat. No placeholders. No mercy. |
 
@@ -113,7 +113,7 @@ toolchain from nothing: `linux-api-headers` → `gmp`/`mpfr`/`mpc`/`isl` →
 
 | Repository | Purpose |
 |------------|---------|
-| **Antenora-Linux** | The OS: installer, ISO profile, kernel config, themes, docs |
+| **Antenora-Linux** | The OS: install handbook, ISO profile, kernel config, themes, docs |
 | **antenora-packages** | The central package repository (`recipes/` + `manifest.yaml`) |
 | **antenora-dur** | The **Dante User Repository** — public, anyone can commit |
 | **dante** | The package manager alone (`cmd/` + `pkg/`) |
@@ -142,7 +142,6 @@ tools; everything else is bootstrapped.
 ### Prerequisites (host)
 - `gcc`, `make`, `tar`, `xz`, `cpio`, `gzip`, `git`, `go`
 - `xorriso`, `grub-mkrescue`, `mksquashfs` (ISO assembly)
-- `dialog` (installer gauge)
 
 ### Build Dante
 
@@ -199,17 +198,18 @@ git tag v1.0.0 && git push origin v1.0.0
 
 ## Installing
 
-Boot the live ISO and run `install-antenora`. The **Gates of Hell** installer:
+Antenora is installed **by hand**. There is no guided installer — you follow the
+[Antenora Handbook](install-guide.md), a step-by-step descent:
 
-1. `cfdisk` partitioning
-2. XFS (`ftype=1 inode64`) root, FAT32 EFI
-3. Stage3 extraction
-4. chroot
-5. kernel (binary default; source if you are a masochist)
-6. base system + desktop (KDE / GNOME / Sway / none)
-7. user + `wheel` + sudo + SSH keys
-8. `grub-mkconfig`
-9. a winged lion
+1. partition (`cfdisk`)
+2. format root as XFS (`ftype=1 inode64`), EFI as FAT32
+3. mount + extract the Stage3 tarball
+4. `chroot`
+5. configure (`/etc/fstab`, hostname, locale, timezone)
+6. `dante install base-system linux-cachyos-bore linux-firmware` (+ a desktop)
+7. initramfs + s6-linux-init (`mkinitramfs.sh`, `s6-init-setup.sh`)
+8. `grub-install` + `grub-mkconfig`
+9. user + `wheel` + sudo + SSH keys
 10. reboot into the promised land
 
 ZRAM (`lz4`) is automatic. The `nftables` firewall blocks everything inbound

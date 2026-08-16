@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hell — The Recipe Language — Antenora Linux</title>
+  <meta name="description" content="Hell is Antenora's package recipe language — a minimalistic cross between Makefile and Lua, impossible to write poorly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="index.html">Antenora<small>Linux</small></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="circles.html">Circles</a>
+      <a href="install.html">Install</a>
+      <a href="packages.html">Packages</a>
+      <a href="hell.html" class="active">Hell</a>
+      <a href="dur.html">DUR</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="container">
+    <div class="eyebrow">The Recipe Language</div>
+    <h1>HELL</h1>
+    <p>A minimalistic cross between Makefile and Lua, designed to be impossible to write poorly. You can learn it in five minutes — and if a recipe exceeds 50 lines, the parser refuses to run it.</p>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2 class="reveal">A recipe in 30 seconds.</h2>
+    <div class="code reveal" style="margin-top:1.5rem"><pre><span class="c"># curl.hell</span>
+<span class="k">package</span> <span class="s">"curl"</span> <span class="k">version</span> <span class="s">"8.8.0"</span> {
+    <span class="k">source</span> <span class="s">"https://github.com/curl/curl/releases/download/8.8.0/curl-8.8.0.tar.xz"</span>
+    <span class="k">depends</span> <span class="s">"openssl"</span> <span class="s">"zlib"</span> <span class="s">"ca-certificates"</span>
+
+    <span class="k">arch</span> x86_64 { <span class="k">cflags</span> <span class="s">"-march=native -O3 -pipe"</span> }
+
+    <span class="k">build</span>   { <span class="k">run</span> <span class="s">"./configure --prefix=/usr --with-openssl"</span>
+               <span class="k">run</span> <span class="s">"make -j$HELL_JOBS"</span> }
+    <span class="k">install</span> { <span class="k">run</span> <span class="s">"make install DESTDIR=$HELL_ROOT"</span> }
+
+    <span class="k">binary</span> <span class="s">"https://cdn.antenora.org/packages/curl-8.8.0-x86_64.db"</span> {
+        <span class="k">sha256</span> <span class="s">"a1b2c3d4e5f6..."</span>
+    }
+}</pre></div>
+    <p class="lede reveal" style="margin-top:1.5rem">Four things: <code>package</code> + <code>version</code> (identity), <code>source</code> (the tarball), <code>build</code> (compile), <code>install</code> (place files). Everything else is optional.</p>
+</div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="reveal">The rules.</h2>
+    <ul style="margin-top:1.5rem; color:var(--ink-dim); list-style:none">
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;<code>#</code> starts a comment — everything after it to the end of the line.</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;Strings are <code>"double quoted"</code>; <code>\</code> escapes a character.</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;Indentation is style. The parser ignores whitespace.</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;One package per file, named <code>&lt;package&gt;.hell</code>.</li>
+      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;Over 50 lines → <code>BLASPHEMY_ERROR</code>. The parser refuses.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="reveal">The keywords.</h2>
+    <table style="margin-top:1.5rem">
+      <thead><tr><th>Directive</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>package "n" version "v"</code></td><td>Required. Package identity.</td></tr>
+        <tr><td><code>description "..."</code></td><td>One-line summary shown by <code>dante search</code>.</td></tr>
+        <tr><td><code>source "url"</code></td><td>Tarball to download (<code>.tar.gz</code>/<code>.tar.xz</code>/<code>.tar.bz2</code>).</td></tr>
+        <tr><td><code>depends "a" "b"</code></td><td>Dependencies — resolved automatically.</td></tr>
+        <tr><td><code>build { ... }</code></td><td>Compile steps.</td></tr>
+        <tr><td><code>install { ... }</code></td><td>Install steps.</td></tr>
+        <tr><td><code>post_install { ... }</code></td><td>Runs once after install (links, caches, config).</td></tr>
+        <tr><td><code>binary "url" { ... }</code></td><td>Optional signed binary fallback.</td></tr>
+        <tr><td><code>arch x86_64 { ... }</code></td><td>Architecture-specific flags.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <h2 class="reveal">Commands &amp; variables.</h2>
+    <div class="grid two" style="margin-top:1.5rem">
+      <div>
+        <table>
+          <thead><tr><th>Command</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>run "..."</code></td><td><code>run "make -j$HELL_JOBS"</code></td></tr>
+            <tr><td><code>mkdir "/p"</code></td><td><code>mkdir "/etc/foo"</code></td></tr>
+            <tr><td><code>cp "s" "d"</code></td><td><code>cp "README" "$HELL_ROOT/usr/share/doc/..."</code></td></tr>
+            <tr><td><code>rm "/p"</code></td><td><code>rm "/usr/lib/foo.la"</code></td></tr>
+            <tr><td><code>ln "t" "l"</code></td><td><code>ln "gcc" "/usr/bin/cc"</code></td></tr>
+            <tr><td><code>var "N" "V"</code></td><td><code>var "CFLAGS" "-O3"</code></td></tr>
+            <tr><td><code>patch "f" "p"</code></td><td><code>patch "src.c" "fix.patch"</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>Variable</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>$HELL_ROOT</code></td><td>Staging dir for install</td></tr>
+            <tr><td><code>$HELL_SRC_DIR</code></td><td>Extracted source dir</td></tr>
+            <tr><td><code>$HELL_ARCH</code></td><td><code>x86_64</code> / <code>aarch64</code></td></tr>
+            <tr><td><code>$HELL_CFLAGS</code></td><td>Compiler flags</td></tr>
+            <tr><td><code>$HELL_LDFLAGS</code></td><td>Linker flags</td></tr>
+            <tr><td><code>$HELL_JOBS</code></td><td>Parallel jobs</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:1.2rem; color:var(--muted)">Conditions:</p>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">if</span> arch_x86_64 { <span class="k">run</span> <span class="s">"..."</span> } <span class="k">else</span> { <span class="k">run</span> <span class="s">"..."</span> }
+<span class="k">if</span> binary_available { <span class="k">run</span> <span class="s">"..."</span> }
+<span class="k">if</span> file_exists <span class="s">"/etc/foo"</span> { <span class="k">run</span> <span class="s">"..."</span> }
+<span class="k">if</span> env <span class="s">"SOME_VAR"</span> { <span class="k">run</span> <span class="s">"..."</span> }</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="reveal">Build patterns.</h2>
+    <div class="grid two" style="margin-top:1.5rem">
+      <div class="card reveal"><div class="num">Autotools</div>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">build</span> { <span class="k">run</span> <span class="s">"./configure --prefix=/usr"</span>
+         <span class="k">run</span> <span class="s">"make -j$HELL_JOBS"</span> }
+<span class="k">install</span> { <span class="k">run</span> <span class="s">"make install DESTDIR=$HELL_ROOT"</span> }</pre></div>
+      </div>
+      <div class="card reveal"><div class="num">Meson</div>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">build</span> { <span class="k">run</span> <span class="s">"meson setup build --prefix=/usr"</span>
+         <span class="k">run</span> <span class="s">"ninja -C build"</span> }
+<span class="k">install</span> { <span class="k">run</span> <span class="s">"ninja -C build install --destdir $HELL_ROOT"</span> }</pre></div>
+      </div>
+      <div class="card reveal"><div class="num">CMake</div>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">build</span> { <span class="k">run</span> <span class="s">"cmake -B build -DCMAKE_INSTALL_PREFIX=/usr"</span>
+         <span class="k">run</span> <span class="s">"cmake --build build -j$HELL_JOBS"</span> }
+<span class="k">install</span> { <span class="k">run</span> <span class="s">"cmake --install build --prefix $HELL_ROOT/usr"</span> }</pre></div>
+      </div>
+      <div class="card reveal"><div class="num">Go</div>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">build</span> { <span class="k">run</span> <span class="s">"go build -trimpath -o tool ."</span> }
+<span class="k">install</span> { <span class="k">run</span> <span class="s">"install -Dm755 tool $HELL_ROOT/usr/bin/tool"</span> }</pre></div>
+      </div>
+      <div class="card reveal"><div class="num">Rust</div>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">build</span> { <span class="k">run</span> <span class="s">"cargo build --release --locked"</span> }
+<span class="k">install</span> { <span class="k">run</span> <span class="s">"install -Dm755 target/release/tool $HELL_ROOT/usr/bin/tool"</span> }</pre></div>
+      </div>
+      <div class="card reveal"><div class="num">Config-only</div>
+        <div class="code" style="margin-top:.6rem"><pre><span class="k">build</span> { <span class="k">run</span> <span class="s">"true"</span> }
+<span class="k">install</span> { <span class="k">cp</span> <span class="s">"config"</span> <span class="s">"$HELL_ROOT/etc/tool.conf"</span> }</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="eyebrow">The Rite</div>
+    <h2 class="reveal">Submit to the DUR.</h2>
+    <div class="steps" style="margin-top:2rem">
+      <div class="step reveal"><div><h3>Write</h3><p>Start from <code>docs/recipe-template.hell</code>.</p></div></div>
+      <div class="step reveal"><div><h3>Validate</h3><p><code>dante compile my-package.hell -</code></p></div></div>
+      <div class="step reveal"><div><h3>Ship</h3><p><code>dur-submit.sh my-package.hell</code> — or a pull request.</p></div></div>
+    </div>
+    <div class="cta-row reveal" style="justify-content:flex-start; margin-top:2rem">
+      <a class="btn primary" href="dur.html">The DUR</a>
+      <a class="btn ghost" href="packages.html">Back to Dante</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="font-family:var(--display); letter-spacing:.3em; color:var(--red-bright)">◆ &nbsp;ANTENORA&nbsp; ◆</div>
+    <p style="margin-top:.6rem; color:var(--muted)">Linux · "Inferno" 1.0.0 — The Ninth Circle of Speed</p>
+    <div class="repos">
+      <a href="https://github.com/AstralZX/Antenora-Linux">Antenora-Linux</a>
+      <a href="https://github.com/AstralZX/antenora-packages">antenora-packages</a>
+      <a href="https://github.com/AstralZX/antenora-dur">antenora-dur</a>
+      <a href="https://github.com/AstralZX/dante">dante</a>
+    </div>
+    <p class="legal">Licensed under the GNU Affero General Public License v3.0.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

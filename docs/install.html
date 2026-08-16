@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Install — Antenora Linux</title>
-  <meta name="description" content="Download and install Antenora Linux. Boot the ISO, run the Gates of Hell installer, and reboot into the promised land.">
+  <title>Manual Installation — Antenora Linux</title>
+  <meta name="description" content="Install Antenora Linux by hand. No wizard, no guided installer — just you, a root shell, and the raw silicon.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -21,6 +21,7 @@
       <a href="circles.html">Circles</a>
       <a href="install.html" class="active">Install</a>
       <a href="packages.html">Packages</a>
+      <a href="hell.html">Hell</a>
       <a href="dur.html">DUR</a>
     </div>
   </div>
@@ -28,23 +29,22 @@
 
 <header class="page-hero">
   <div class="container">
-    <div class="eyebrow">The Gates of Hell</div>
-    <h1>INSTALL</h1>
-    <p>One bootable ISO, one installer, and a machine reborn free of systemd.</p>
+    <div class="eyebrow">The Descent</div>
+    <h1>MANUAL INSTALL</h1>
+    <p>No installer. No wizard. No "express" mode. Only you, a root shell, and the raw silicon.</p>
   </div>
 </header>
 
 <section>
   <div class="container">
     <h2 class="reveal">Download</h2>
-    <p class="lede reveal">Grab a prebuilt ISO from the releases, or build it entirely from source with <code>make iso</code>.</p>
+    <p class="lede reveal">Boot the live ISO — or build it entirely from source.</p>
     <div class="cta-row reveal" style="justify-content:flex-start; margin-top:1.5rem">
       <a class="btn primary" href="https://github.com/AstralZX/Antenora-Linux/releases">Download the ISO</a>
       <a class="btn ghost" href="https://github.com/AstralZX/Antenora-Linux#building">Build from source</a>
     </div>
     <div class="terminal reveal" style="margin-top:2.5rem">
       <div><span class="prompt">$</span> make iso</div>
-      <div class="dim"># toolchain → base-system → kernel → initramfs → grub-mkrescue</div>
       <div class="ok">:: ISO written: dist/iso/antenora-1.0.0-x86_64.iso</div>
     </div>
   </div>
@@ -52,32 +52,35 @@
 
 <section class="alt">
   <div class="container">
-    <div class="eyebrow">The Descent</div>
-    <h2 class="reveal">The installation, step by step.</h2>
+    <div class="eyebrow">The Rite</div>
+    <h2 class="reveal">The installation, by hand.</h2>
+    <p class="lede reveal">Every command below is one you typed, and therefore one you own. Conventions: <code>/dev/sda2</code> is root, <code>/dev/sda1</code> is EFI. Substitute your own.</p>
+
     <div class="steps" style="margin-top:2.5rem">
-      <div class="step reveal"><div><h3>Boot the ISO</h3><p>BIOS or UEFI, GRUB will hand you the Gates of Hell installer.</p></div></div>
-      <div class="step reveal"><div><h3>Partition with cfdisk</h3><p>Make a root partition — and an EFI partition on UEFI systems.</p></div></div>
-      <div class="step reveal"><div><h3>Format as XFS</h3><p>Root is formatted <code>mkfs.xfs -n ftype=1 -d inode64</code>. EFI is FAT32. No questions asked.</p></div></div>
-      <div class="step reveal"><div><h3>Extract the Stage3</h3><p>The self-hosting base (s6, glibc, Dante) lands in the new root, then chroot.</p></div></div>
-      <div class="step reveal"><div><h3>Kernel &amp; base system</h3><p><code>linux-cachyos-bore</code> (binary by default; source if you're a masochist) plus the base.</p></div></div>
-      <div class="step reveal"><div><h3>Choose your desktop</h3><p>KDE Plasma, GNOME, SwayWM — or none, headless warrior mode.</p></div></div>
-      <div class="step reveal"><div><h3>User, sudo, SSH</h3><p>Your user joins <code>wheel</code>, sudo is configured, SSH keys are generated.</p></div></div>
-      <div class="step reveal"><div><h3>GRUB</h3><p><code>grub-mkconfig</code>, a 3-second timeout, the dark red/black theme.</p></div></div>
-      <div class="step reveal"><div><h3>Reboot</h3><p>A winged lion. Then the promised land.</p></div></div>
+      <div class="step reveal"><div><h3>Partition</h3><p><code>cfdisk /dev/sda</code> — a root partition, plus an EFI partition on UEFI.</p></div></div>
+      <div class="step reveal"><div><h3>Format — XFS</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> mkfs.xfs -f -n ftype=1 -d inode64 /dev/sda2</div><div><span class="prompt">#</span> mkfs.fat -F32 /dev/sda1   <span class="dim"># UEFI</span></div></div></div></div>
+      <div class="step reveal"><div><h3>Mount</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> mount /dev/sda2 /mnt</div><div><span class="prompt">#</span> mkdir -p /mnt/boot &amp;&amp; mount /dev/sda1 /mnt/boot</div></div></div></div>
+      <div class="step reveal"><div><h3>Extract the Stage3</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> wget &lt;stage3-url&gt;</div><div><span class="prompt">#</span> tar -xJpf stage3-1.0.0-x86_64.tar.xz -C /mnt --numeric-owner</div></div></div></div>
+      <div class="step reveal"><div><h3>chroot</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> cp /etc/resolv.conf /mnt/etc/resolv.conf</div><div><span class="prompt">#</span> mount --bind /dev /mnt/dev &amp;&amp; mount --bind /proc /mnt/proc &amp;&amp; mount --bind /sys /mnt/sys</div><div><span class="prompt">#</span> chroot /mnt /bin/bash</div></div></div></div>
+      <div class="step reveal"><div><h3>Configure</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> echo antenora &gt; /etc/hostname</div><div><span class="prompt">#</span> ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime</div></div><p style="margin-top:.6rem">Write <code>/etc/fstab</code> for your partitions.</p></div></div>
+      <div class="step reveal"><div><h3>Install the world</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> dante sync</div><div><span class="prompt">#</span> dante install base-system linux-cachyos-bore linux-firmware</div><div><span class="prompt">#</span> dante install sway <span class="dim"># plasma / gnome / sway — or none</span></div></div></div></div>
+      <div class="step reveal"><div><h3>Initramfs &amp; init</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> /usr/lib/antenora/s6-init-setup.sh</div><div><span class="prompt">#</span> /usr/lib/antenora/mkinitramfs.sh / /boot/initramfs-antenora.img boot/disk-boot/init</div></div></div></div>
+      <div class="step reveal"><div><h3>Bootloader</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Antenora</div><div><span class="prompt">#</span> grub-mkconfig -o /boot/grub/grub.cfg</div></div></div></div>
+      <div class="step reveal"><div><h3>User, sudo, SSH</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> useradd -m -G wheel -s /usr/bin/zsh you</div><div><span class="prompt">#</span> passwd you &amp;&amp; passwd root</div><div><span class="prompt">#</span> echo '%wheel ALL=(ALL:ALL) ALL' &gt; /etc/sudoers.d/10-wheel</div></div></div></div>
+      <div class="step reveal"><div><h3>Reboot</h3><div class="terminal" style="margin-top:.6rem"><div><span class="prompt">#</span> exit &amp;&amp; umount -R /mnt &amp;&amp; reboot</div></div></div></div>
     </div>
   </div>
 </section>
 
 <section>
   <div class="container">
-    <div class="eyebrow">Requirements</div>
-    <h2 class="reveal">What you'll need.</h2>
-    <ul style="margin-top:1.5rem; color:var(--ink-dim); list-style:none">
-      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;A 64-bit <code>x86_64</code> machine (UEFI or BIOS)</li>
-      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;At least 4&nbsp;GB of RAM, and disk for a real filesystem</li>
-      <li class="reveal" style="padding:.4rem 0">◆ &nbsp;A USB stick and <code>dd</code> — or the willingness to compile the world yourself</li>
-    </ul>
-    <p class="lede reveal" style="margin-top:2rem">The installer detects your hardware (<code>lspci</code>, <code>lsusb</code>) and pulls the right firmware. ZRAM (<code>lz4</code>) is enabled automatically — no swap partition. The firewall allows SSH and ping, and nothing else.</p>
+    <div class="eyebrow">First Boot</div>
+    <h2 class="reveal">What happens on your first descent.</h2>
+    <p class="lede reveal">ZRAM (<code>lz4</code>) is enabled automatically — no swap partition. The nftables firewall blocks everything inbound except SSH and ping. <code>/usr/lib/antenora/firstboot.sh</code> generates missing SSH keys. Then a winged lion.</p>
+    <div class="cta-row reveal" style="justify-content:flex-start; margin-top:2rem">
+      <a class="btn primary" href="https://github.com/AstralZX/Antenora-Linux/blob/main/docs/install-guide.md">The full handbook</a>
+      <a class="btn ghost" href="packages.html">Next: Dante &amp; Hell</a>
+    </div>
   </div>
 </section>
 

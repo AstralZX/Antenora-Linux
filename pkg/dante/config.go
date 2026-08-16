@@ -44,7 +44,7 @@ func DefaultConfig() *Config {
 	}
 	c := &Config{
 		Binary:    "NO",
-		MakeFlags: "-j$(nproc)",
+		MakeFlags: "-j4",
 		RepoURL:   "https://github.com/AstralZX/antenora-packages.git",
 		RepoURLs: []string{
 			"https://github.com/AstralZX/antenora-packages.git",
@@ -183,12 +183,14 @@ func (c *Config) KeepDepsEnabled() bool {
 }
 
 // Jobs extracts the -jN value from MakeFlags, defaulting to the CPU count.
+// The literal "$(nproc)" token is resolved here so that every build gets a
+// hard parallel-job count rather than relying on shell expansion downstream.
 func (c *Config) Jobs() string {
 	f := strings.Fields(c.MakeFlags)
 	for _, flag := range f {
 		if strings.HasPrefix(flag, "-j") {
 			v := strings.TrimPrefix(flag, "-j")
-			if v == "" {
+			if v == "" || v == "$(nproc)" || v == "nproc" {
 				return fmt.Sprintf("%d", runtime.NumCPU())
 			}
 			return v
