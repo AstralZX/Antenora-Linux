@@ -1,5 +1,6 @@
 # Antenora Linux — top-level build.
-# `make all` builds the package manager, the Stage3 tarball and the live ISO.
+# `make all` builds the package manager, the Stage3 tarball and the ISO.
+# Everything is compiled from source by Dante. No Arch, no mkarchiso.
 
 SHELL := /bin/bash
 VERSION ?= 1.0.0
@@ -17,9 +18,13 @@ dante:
 stage3: dante
 	./scripts/stage3-build.sh $(VERSION) x86_64
 
-## iso — build the live image (requires mkarchiso)
+## iso — build the bootable ISO from source (toolchain -> base -> kernel -> ISO)
 iso: dante
-	./scripts/iso-build.sh $(VERSION)
+	./scripts/iso-build.sh $(VERSION) x86_64
+
+## toolchain — bootstrap the Antenora toolchain into a sysroot
+toolchain:
+	./scripts/toolchain.sh
 
 ## test — run the unit tests
 test:
@@ -31,4 +36,4 @@ vet:
 
 ## clean — remove build artifacts
 clean:
-	rm -rf $(DIST) /tmp/antenora-archiso
+	rm -rf $(DIST)

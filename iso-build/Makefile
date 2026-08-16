@@ -1,21 +1,18 @@
-# Build the Antenora live ISO via mkarchiso.
+# Build the Antenora ISO from source. No Arch, no mkarchiso.
 # Usage: make iso VERSION=1.0.0
 
 VERSION ?= 1.0.0
-PROFILE := archiso
-OUT     := ../dist/iso
+ROOT    := ..
 
-.PHONY: all iso clean
+.PHONY: all iso stage3 clean
 
 all: iso
 
-iso: dante
-	mkdir -p $(OUT)
-	mkarchiso -v -w /tmp/antenora-archiso -o $(OUT) $(PROFILE)
+iso:
+	$(ROOT)/scripts/iso-build.sh $(VERSION)
 
-dante:
-	CGO_ENABLED=0 go -C .. build -trimpath -ldflags '-s -w' \
-		-o $(PROFILE)/airootfs/usr/bin/dante ./cmd/dante
+stage3:
+	$(ROOT)/scripts/stage3-build.sh $(VERSION)
 
 clean:
-	rm -rf /tmp/antenora-archiso $(OUT)
+	rm -rf $(ROOT)/dist/iso $(ROOT)/dist/iso-work $(ROOT)/dist/sysroot

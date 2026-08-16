@@ -1,6 +1,6 @@
 package "base-system" version "1.0.0" {
     description "Meta-package pulling in the Antenora base"
-    depends "glibc" "s6" "grub" "sudo" "zsh" "networkmanager" "pipewire" "nftables" "neofetch"
+    depends "glibc" "s6" "s6-linux-init" "skalibs" "execline" "grub" "sudo" "zsh" "networkmanager" "pipewire" "nftables" "fastfetch" "coreutils" "bash" "util-linux" "busybox"
 
     build {
         run "true"

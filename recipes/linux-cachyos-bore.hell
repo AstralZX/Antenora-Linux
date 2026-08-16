@@ -1,7 +1,7 @@
 package "linux-cachyos-bore" version "6.9.6-cachyos" {
     description "Linux kernel with CachyOS patches and the BORE scheduler"
     source "https://github.com/CachyOS/linux-cachyos/archive/refs/tags/6.9.6-cachyos.tar.gz"
-    depends "dracut" "linux-firmware"
+    depends "linux-firmware"
 
     arch x86_64 {
         cflags "-march=native -O3 -pipe"
@@ -15,12 +15,9 @@ package "linux-cachyos-bore" version "6.9.6-cachyos" {
 
     install {
         run "make modules_install INSTALL_MOD_PATH=$HELL_ROOT"
+        mkdir "/boot"
         cp "arch/x86/boot/bzImage" "$HELL_ROOT/boot/vmlinuz-linux-cachyos-bore"
         cp "System.map" "$HELL_ROOT/boot/System.map-linux-cachyos-bore"
-    }
-
-    post_install {
-        run "dracut --force --kver 6.9.6-cachyos /boot/initramfs-linux-cachyos-bore.img"
     }
 
     binary "https://cdn.antenora.org/packages/linux-cachyos-bore-6.9.6-x86_64.db" {

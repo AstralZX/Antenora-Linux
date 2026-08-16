@@ -1,0 +1,14 @@
+package "xorriso" version "1.5.6.pl02" {
+    description "xorriso - ISO 9660 Rock Ridge filesystem manipulator"
+    source "https://www.gnu.org/software/xorriso/xorriso-1.5.6.pl02.tar.gz"
+    depends "libisofs" "libburn" "libisoburn"
+
+    build {
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+}

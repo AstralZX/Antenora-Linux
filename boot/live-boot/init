@@ -1,0 +1,42 @@
+#!/bin/busybox sh
+# Antenora live init (initramfs).
+# Mounts the live squashfs over a writable overlay, then hands off to
+# s6-linux-init as PID 1. No systemd, no dracut.
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+mount -t proc proc /proc 2>/dev/null
+mount -t sysfs sysfs /sys 2>/dev/null
+mount -t devtmpfs dev /dev 2>/dev/null || mdev -s
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts 2>/dev/null
+mount -t tmpfs tmpfs /run
+
+mkdir -p /newroot /run/live /run/root /run/ovl/upper /run/ovl/work
+
+# --- locate the live medium -------------------------------------------------
+found=
+for dev in /dev/sr* /dev/sd* /dev/nvme* /dev/vd* /dev/mmcblk*; do
+    [ -e "$dev" ] || continue
+    if mount -o ro "$dev" /run/live 2>/dev/null; then
+        if [ -f /run/live/antenora/rootfs.squashfs ]; then
+            found=1
+            break
+        fi
+        umount /run/live 2>/dev/null
+    fi
+done
+
+if [ -z "$found" ]; then
+    echo "Antenora: live root not found. Dropping to a shell."
+    exec /bin/sh
+fi
+
+# --- mount the squashfs + writable overlay ----------------------------------
+mount -o ro,loop /run/live/antenora/rootfs.squashfs /run/root 2>/dev/null
+mount -t tmpfs -o size=50% tmpfs /run/ovl
+mount -t overlay overlay \
+    -o lowerdir=/run/root,upperdir=/run/ovl/upper,workdir=/run/ovl/work /newroot
+
+# --- hand off to s6-linux-init ----------------------------------------------
+exec switch_root /newroot /sbin/init

@@ -134,9 +134,15 @@ dante install -A my-package             # install
 
 ## Building
 
-### Prerequisites
-- Go 1.22+, `git`, `wget`, `tar`, `xz`
-- `mkarchiso` (ISO), `dialog` (installer gauge)
+Antenora is built **from source, entirely by Dante**. There is no dependency on
+Arch, mkarchiso, pacman, or any other distribution's tooling. The only thing
+required from the host is a working C compiler and a handful of standard GNU
+tools; everything else is bootstrapped.
+
+### Prerequisites (host)
+- `gcc`, `make`, `tar`, `xz`, `cpio`, `gzip`, `git`, `go`
+- `xorriso`, `grub-mkrescue`, `mksquashfs` (ISO assembly)
+- `dialog` (installer gauge)
 
 ### Build Dante
 
@@ -150,6 +156,12 @@ make dante          # -> dist/dante
 make test
 ```
 
+### Bootstrap the toolchain
+
+```sh
+make toolchain      # gcc/glibc/binutils built from source into dist/sysroot
+```
+
 ### Build the Stage3 bootstrap tarball
 
 ```sh
@@ -161,6 +173,10 @@ make stage3         # -> dist/stage3-1.0.0-x86_64.tar.xz
 ```sh
 make iso            # -> dist/iso/antenora-*.iso
 ```
+
+This compiles the entire base system (glibc, coreutils, bash, util-linux, s6,
+s6-linux-init, the kernel, ...) from source, wraps it in a busybox initramfs
+and a squashfs, and assembles a hybrid BIOS/UEFI ISO with `grub-mkrescue`.
 
 ### Everything
 

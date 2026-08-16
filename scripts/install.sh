@@ -155,13 +155,11 @@ bold ":: Extracting Stage3 tarball..."
 gauge "Antenora" "Extracting base system..." 10
 tar -xJpf "$STAGE3_TARBALL" -C "$STAGE3_ROOT" --numeric-owner
 
-# seed fstab
-genfstab -U "$STAGE3_ROOT" > "$STAGE3_ROOT/etc/fstab" 2>/dev/null || {
-    cat > "$STAGE3_ROOT/etc/fstab" <<EOF
+# seed fstab (XFS root, optional EFI)
+cat > "$STAGE3_ROOT/etc/fstab" <<EOF
 $ROOT_PART / xfs defaults,noatime 0 1
 $([ -n "$EFI_PART" ] && echo "$EFI_PART /boot vfat defaults 0 2")
 EOF
-}
 
 # ---------------------------------------------------------------------------
 # 5. chroot setup
@@ -231,6 +229,13 @@ chroot_run "nft -f /etc/nftables.conf || true"
 
 # sysctl
 chroot_run "sysctl --system || true"
+
+# ---------------------------------------------------------------------------
+# 7b. initramfs (busybox, no dracut/systemd) + s6-linux-init
+# ---------------------------------------------------------------------------
+bold ":: Generating initramfs and installing s6-linux-init..."
+chroot_run "/usr/lib/antenora/s6-init-setup.sh"
+chroot_run "/usr/lib/antenora/mkinitramfs.sh / /boot/initramfs-antenora.img boot/disk-boot/init"
 
 # ---------------------------------------------------------------------------
 # 8. bootloader

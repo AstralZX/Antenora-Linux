@@ -2,6 +2,9 @@
 /dist/
 /tmp/
 
+# The dante binary copied into the rootfs overlay during build
+/rootfs/usr/bin/
+
 # Go
 *.test
 *.out
@@ -10,6 +13,3 @@
 .DS_Store
 *.swp
 *~
-
-# Built binaries copied into the live root during iso-build
-/iso-build/archiso/airootfs/usr/bin/dante
