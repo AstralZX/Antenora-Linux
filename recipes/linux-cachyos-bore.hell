@@ -1,23 +1,19 @@
-package "linux-cachyos-bore" version "6.9.6-cachyos" {
-    description "Linux kernel with CachyOS patches and the BORE scheduler"
-    source "https://github.com/CachyOS/linux-cachyos/archive/refs/tags/6.9.6-cachyos.tar.gz"
+package "linux-cachyos-bore" version "6.12.10" {
+    description "Linux kernel - vanilla with Antenora config (BORE pending)"
+    source "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.12.10.tar.xz"
     depends "linux-firmware"
 
-    arch x86_64 {
-        cflags "-march=native -O3 -pipe"
-    }
-
     build {
-        cp "/usr/src/antenora/kernel-config/config" "$HELL_SRC_DIR/.config"
+        run "cp $HELL_SYSROOT/usr/src/antenora/kernel-config/config .config"
         run "make olddefconfig"
-        run "make -j$HELL_JOBS bzImage modules"
+        run "make -j$HELL_JOBS CC='gcc -std=gnu11' bzImage modules"
     }
 
     install {
         run "make modules_install INSTALL_MOD_PATH=$HELL_ROOT"
-        mkdir "/boot"
-        cp "arch/x86/boot/bzImage" "$HELL_ROOT/boot/vmlinuz-linux-cachyos-bore"
-        cp "System.map" "$HELL_ROOT/boot/System.map-linux-cachyos-bore"
+        run "mkdir -p $HELL_ROOT/boot"
+        run "cp arch/x86/boot/bzImage $HELL_ROOT/boot/vmlinuz-linux-cachyos-bore"
+        run "cp System.map $HELL_ROOT/boot/System.map-linux-cachyos-bore"
     }
 
 }
