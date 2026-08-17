@@ -8,7 +8,7 @@
 > Hell.
 
 <p align="center">
-  <img src="theme/grub-theme/antenna-logo.png" alt="Antenora crest" width="420" />
+  <img src="https://github.com/AstralZX/Antenora-Linux" alt="Antenora crest" width="420" />
 </p>
 
 [![ci](https://github.com/AstralZX/Antenora-Linux/actions/workflows/ci.yml/badge.svg)](https://github.com/AstralZX/Antenora-Linux/actions/workflows/ci.yml)
