@@ -43,14 +43,14 @@ func DefaultConfig() *Config {
 		prefix = ""
 	}
 	c := &Config{
-		Binary:    "NO",
+		Binary:    "YES",
 		MakeFlags: "-j4",
 		RepoURL:   "https://github.com/AstralZX/antenora-packages.git",
 		RepoURLs: []string{
 			"https://github.com/AstralZX/antenora-packages.git",
 		},
 		DurURL:       "https://github.com/AstralZX/antenora-dur.git",
-		BinaryMirror: "https://cdn.antenora.org/packages",
+		BinaryMirror: "https://raw.githubusercontent.com/AstralZX/antenora-packages/main/packages",
 		MirrorFile:   filepath.Join(prefix, "etc/dante/mirrors.conf"),
 		CleanSource:  "YES",
 		KeepDeps:     "NO",

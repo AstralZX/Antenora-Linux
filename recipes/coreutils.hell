@@ -4,7 +4,7 @@ package "coreutils" version "9.5" {
     depends "openssl"
 
     build {
-        run "./configure --prefix=/usr"
+        run "./configure --prefix=/usr ac_cv_func_memset_explicit=no"
         run "make -j$HELL_JOBS"
     }
 

@@ -1,0 +1,13 @@
+package "libudev-zero" version "1.0.3" {
+    description "A drop-in replacement for libudev (systemd-free)"
+    source "https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.3.tar.gz"
+
+    build {
+        run "printf 'LIBUDEV_183 {\\n  global:\\n    udev_*;\\n    sd_*;\\n  local:\\n    *;\\n};\\n' > libudev.map"
+        run "make -j$HELL_JOBS LDFLAGS=\"-Wl,--version-script=$PWD/libudev.map $LDFLAGS\""
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT PREFIX=/usr"
+    }
+}

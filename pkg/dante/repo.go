@@ -36,6 +36,7 @@ type ManifestBinary struct {
 	URL    string `yaml:"url"`
 	SHA256 string `yaml:"sha256"`
 	Size   string `yaml:"size"`
+	Strip  int    `yaml:"strip,omitempty"`
 	SigURL string `yaml:"sig_url,omitempty"`
 	Signer string `yaml:"signer,omitempty"`
 }
@@ -62,6 +63,7 @@ type PackageInfo struct {
 	BinarySHA256     string
 	BinarySize       string
 	BinarySigURL     string
+	BinaryStrip      int
 	Installed        bool
 	InstalledVersion string
 }
@@ -198,6 +200,8 @@ func (d *Dante) buildRepoIndex(dir string, src Source) (map[string]*PackageInfo,
 			pi.BinaryURL = pkg.Binary.URL
 			pi.BinarySHA256 = pkg.Binary.SHA256
 			pi.BinarySize = pkg.Binary.Size
+			pi.BinarySigURL = pkg.Binary.SigURL
+			pi.BinaryStrip = pkg.Binary.Strip
 		}
 		if mp, ok := meta[pkg.Name]; ok {
 			if mp.Description != "" {
@@ -212,6 +216,9 @@ func (d *Dante) buildRepoIndex(dir string, src Source) (map[string]*PackageInfo,
 				}
 				if mp.Binary.Size != "" {
 					pi.BinarySize = mp.Binary.Size
+				}
+				if mp.Binary.Strip > 0 {
+					pi.BinaryStrip = mp.Binary.Strip
 				}
 				if mp.Binary.SigURL != "" {
 					pi.BinarySigURL = mp.Binary.SigURL
@@ -378,6 +385,8 @@ func (d *Dante) GenManifest(dir string) error {
 				URL:    pkg.Binary.URL,
 				SHA256: pkg.Binary.SHA256,
 				Size:   pkg.Binary.Size,
+				Strip:  pkg.Binary.Strip,
+				SigURL: pkg.Binary.SigURL,
 			}
 		}
 		manifest.Packages = append(manifest.Packages, mp)

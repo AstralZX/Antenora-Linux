@@ -17,6 +17,7 @@ type Interpreter struct {
 	Env             map[string]string
 	SrcDir          string
 	Root            string
+	SysRoot         string
 	Arch            string
 	BinaryAvailable bool
 	Verbose         bool
@@ -25,14 +26,15 @@ type Interpreter struct {
 }
 
 // NewInterpreter constructs an Interpreter with an empty environment and the
-// given staging root, source directory and target architecture.
-func NewInterpreter(root, srcDir, arch string) *Interpreter {
+// given staging root, source directory, system root and target architecture.
+func NewInterpreter(root, srcDir, arch, sysRoot string) *Interpreter {
 	return &Interpreter{
-		Env:    make(map[string]string),
-		Root:   root,
-		SrcDir: srcDir,
-		Arch:   arch,
-		Out:    os.Stdout,
+		Env:     make(map[string]string),
+		Root:    root,
+		SrcDir:  srcDir,
+		Arch:    arch,
+		SysRoot: sysRoot,
+		Out:     os.Stdout,
 	}
 }
 
@@ -42,6 +44,7 @@ func (in *Interpreter) Setup(pkg *Package, jobs string) {
 	in.Env["HELL_ROOT"] = in.Root
 	in.Env["HELL_SRC_DIR"] = in.SrcDir
 	in.Env["HELL_ARCH"] = in.Arch
+	in.Env["HELL_SYSROOT"] = in.SysRoot
 	in.Env["HELL_CFLAGS"] = pkg.CFlags
 	in.Env["HELL_LDFLAGS"] = pkg.LDFlags
 	if jobs == "" {
@@ -63,6 +66,22 @@ func (in *Interpreter) Setup(pkg *Package, jobs string) {
 	}
 	if in.Env["HELL_LDFLAGS"] != "" {
 		in.Env["LDFLAGS"] = in.Env["HELL_LDFLAGS"]
+	}
+	// Point the build at the sysroot's installed headers and libraries so
+	// dependencies (skalibs, openssl, ncurses, ...) are found even though the
+	// build runs on the host.
+	if in.SysRoot != "" && in.SysRoot != "/" {
+		inc := "-I" + in.SysRoot + "/usr/include"
+		lib := "-L" + in.SysRoot + "/usr/lib -L" + in.SysRoot + "/lib64 " +
+			"-Wl,-rpath-link," + in.SysRoot + "/usr/lib:" + in.SysRoot + "/lib64"
+		in.Env["CPPFLAGS"] = inc
+		if cur, ok := in.Env["LDFLAGS"]; ok && cur != "" {
+			in.Env["LDFLAGS"] = cur + " " + lib
+		} else {
+			in.Env["LDFLAGS"] = lib
+		}
+		in.Env["PKG_CONFIG_LIBDIR"] = in.SysRoot + "/usr/lib/pkgconfig:" +
+			in.SysRoot + "/usr/share/pkgconfig:" + in.SysRoot + "/usr/lib64/pkgconfig"
 	}
 }
 

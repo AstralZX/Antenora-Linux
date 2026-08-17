@@ -1,25 +1,17 @@
 package "networkmanager" version "1.48.2" {
     description "NetworkManager with s6 integration"
     source "https://download.gnome.org/sources/NetworkManager/1.48/NetworkManager-1.48.2.tar.xz"
-    depends "libnl" "dbus" "elogind"
+    depends "libnl" "dbus" "elogind" "glib"
 
     build {
-        run "meson setup build --prefix=/usr -Dmodem_manager=false"
+        run "meson setup build --prefix=/usr -Dmodem_manager=false -Dselinux=false -Dintrospection=false -Dcrypto=gnutls -Dsystemdsystemunitdir=no -Dsystemd_journal=false -Dsession_tracking=elogind -Dsuspend_resume=elogind -Dlibaudit=no -Dpolkit=false -Dovs=false -Dlibpsl=false -Dconcheck=false -Dnmtui=false -Dnm_cloud_setup=false -Dppp=false"
         run "ninja -C build -j$HELL_JOBS"
     }
 
     install {
-        run "ninja -C build install --destdir $HELL_ROOT"
-        mkdir "/etc/s6-rc/source/NetworkManager"
-        cp "/usr/share/antenora/s6/NetworkManager/run" "$HELL_ROOT/etc/s6-rc/source/NetworkManager/run"
+        run "DESTDIR=$HELL_ROOT ninja -C build install"
+        run "mkdir -p $HELL_ROOT/etc/s6-rc/source/NetworkManager && cp $HELL_ROOT/usr/share/antenora/s6/NetworkManager/run $HELL_ROOT/etc/s6-rc/source/NetworkManager/run 2>/dev/null || true"
     }
 
-    post_install {
-        run "systemctl disable systemd-resolved || true"
-    }
 
-    binary "https://cdn.antenora.org/packages/networkmanager-1.48.2-x86_64.db" {
-        sha256 "9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f"
-        size "9.8MB"
-    }
 }

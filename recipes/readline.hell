@@ -4,7 +4,7 @@ package "readline" version "8.2" {
     depends "ncurses"
 
     build {
-        run "./configure --prefix=/usr"
+        run "./configure --prefix=/usr --with-shared-termcap-library=-lncursesw"
         run "make -j$HELL_JOBS"
     }
 

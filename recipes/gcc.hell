@@ -11,7 +11,7 @@ package "gcc" version "15.2.0" {
         run "sed -i 's/__cplusplus != 201103/__cplusplus < 201103/g' libcody/configure libcody/config.m4"
         run "sed -i 's/u8\"/\"/g' libcody/buffer.cc libcody/client.cc libcody/cody.hh libcody/server.cc"
         mkdir "$HELL_SRC_DIR/build"
-        run "cd build && ../configure --prefix=/usr --enable-languages=c,c++ --disable-multilib --disable-bootstrap --enable-checking=release --enable-lto --enable-linker-build-id"
+        run "cd build && ../configure --prefix=/usr --enable-languages=c,c++ --disable-multilib --disable-bootstrap --enable-checking=release --enable-lto --enable-linker-build-id --disable-libsanitizer --disable-libquadmath"
         run "cd build && make -j$HELL_JOBS"
     }
 
@@ -20,6 +20,6 @@ package "gcc" version "15.2.0" {
     }
 
     post_install {
-        run "ln -sf gcc /usr/bin/cc"
+        ln "gcc" "/usr/bin/cc"
     }
 }

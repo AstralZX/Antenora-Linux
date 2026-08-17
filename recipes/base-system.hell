@@ -1,6 +1,6 @@
 package "base-system" version "1.0.0" {
     description "Meta-package pulling in the Antenora base"
-    depends "glibc" "s6" "s6-linux-init" "skalibs" "execline" "grub" "sudo" "zsh" "networkmanager" "pipewire" "nftables" "fastfetch" "coreutils" "bash" "util-linux" "busybox"
+    depends "glibc" "s6" "s6-linux-init" "skalibs" "execline" "grub" "sudo" "zsh" "libffi" "glib" "networkmanager" "pipewire" "nftables" "fastfetch" "coreutils" "bash" "util-linux" "busybox"
 
     build {
         run "true"
@@ -11,8 +11,4 @@ package "base-system" version "1.0.0" {
         run "echo 'Antenora Linux 1.0.0 \"Inferno\" — The Ninth Circle of Speed' > $HELL_ROOT/etc/antenora-release"
     }
 
-    binary "https://cdn.antenora.org/packages/base-system-1.0.0-x86_64.db" {
-        sha256 "3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b"
-        size "2KB"
-    }
 }

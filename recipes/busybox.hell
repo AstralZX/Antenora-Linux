@@ -9,6 +9,8 @@ package "busybox" version "1.36.1" {
         run "echo 'CONFIG_SWITCH_ROOT=y' >> .config"
         run "echo 'CONFIG_MOUNT=y' >> .config"
         run "echo 'CONFIG_UMOUNT=y' >> .config"
+        run "sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config"
+        run "sed -i 's/CONFIG_IPROUTE=y/# CONFIG_IPROUTE is not set/' .config"
         run "yes '' | make oldconfig"
         run "make -j$HELL_JOBS"
     }

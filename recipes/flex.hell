@@ -3,6 +3,7 @@ package "flex" version "2.6.4" {
     source "https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz"
     depends "m4"
 
+    cflags "-O2 -std=gnu17 -pipe"
     build {
         run "./configure --prefix=/usr"
         run "make -j$HELL_JOBS"

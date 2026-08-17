@@ -1,0 +1,19 @@
+package "gnutls" version "3.8.8" {
+    description "GnuTLS - Transport Layer Security library"
+    source "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.8.tar.xz"
+    depends "nettle" "gmp" "zlib" "libunistring"
+
+    arch x86_64 {
+        cflags "-O2 -D_DEFAULT_SOURCE"
+    }
+
+    build {
+        run "./configure --prefix=/usr --with-included-libtasn1 --without-p11-kit --without-guile --disable-guile --disable-doc --disable-tests --disable-rpath ac_cv_func_memset_explicit=no"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+}

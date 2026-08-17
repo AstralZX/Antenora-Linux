@@ -3,26 +3,14 @@ package "grub" version "2.12" {
     source "https://ftp.gnu.org/gnu/grub/grub-2.12.tar.xz"
     depends "efibootmgr" "os-prober"
 
-    arch x86_64 {
-        cflags "-march=native -O2 -pipe"
-    }
-
     build {
-        run "./configure --prefix=/usr --with-platform=efi --target=x86_64"
+        run "./configure --prefix=/usr --with-platform=efi --target=x86_64 --disable-werror"
+        run "touch grub-core/extra_deps.lst"
         run "make -j$HELL_JOBS"
     }
 
     install {
         run "make install DESTDIR=$HELL_ROOT"
-        run "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Antenora"
     }
 
-    post_install {
-        run "grub-mkconfig -o /boot/grub/grub.cfg"
-    }
-
-    binary "https://cdn.antenora.org/packages/grub-2.12-x86_64.db" {
-        sha256 "b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8"
-        size "12MB"
-    }
 }

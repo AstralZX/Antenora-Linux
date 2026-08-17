@@ -13,7 +13,7 @@ package "glibc" version "2.39" {
 
     build {
         mkdir "$HELL_SRC_DIR/build"
-        run "cd build && ../configure --prefix=/usr --disable-nscd --enable-stack-protector=strong"
+        run "cd build && ../configure --prefix=/usr --disable-nscd --enable-stack-protector=strong --disable-werror"
         run "cd build && make -j$HELL_JOBS"
     }
 
@@ -22,11 +22,7 @@ package "glibc" version "2.39" {
     }
 
     post_install {
-        run "ldconfig"
+        run "ldconfig -r $HELL_ROOT || true"
     }
 
-    binary "https://cdn.antenora.org/packages/glibc-2.39-x86_64.db" {
-        sha256 "0e9a7d6b8c5f4a3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a"
-        size "18MB"
-    }
 }

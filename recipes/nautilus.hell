@@ -9,6 +9,6 @@ package "nautilus" version "46.2" {
     }
 
     install {
-        run "ninja -C build install --destdir $HELL_ROOT"
+        run "DESTDIR=$HELL_ROOT ninja -C build install"
     }
 }

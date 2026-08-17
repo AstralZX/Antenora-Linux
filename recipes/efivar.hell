@@ -3,7 +3,7 @@ package "efivar" version "39" {
     source "https://github.com/rhboot/efivar/archive/refs/tags/39.tar.gz"
 
     build {
-        run "make -j$HELL_JOBS"
+        run "make ERRORS= -j$HELL_JOBS"
     }
 
     install {

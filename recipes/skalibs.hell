@@ -3,7 +3,7 @@ package "skalibs" version "2.14.1.1" {
     source "https://skarnet.org/software/skalibs/skalibs-2.14.1.1.tar.gz"
 
     build {
-        run "./configure --prefix=/usr --enable-static-libc"
+        run "./configure --prefix=/usr --enable-shared --enable-static-libc"
         run "make -j$HELL_JOBS"
     }
 

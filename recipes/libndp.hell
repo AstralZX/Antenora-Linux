@@ -1,0 +1,19 @@
+package "libndp" version "1.9" {
+    description "libndp - Neighbor Discovery Protocol library"
+    source "https://github.com/jpirko/libndp/archive/refs/tags/v1.9.tar.gz"
+
+    arch x86_64 {
+        cflags "-O2 -Wno-error=incompatible-pointer-types"
+    }
+
+    build {
+        run "sh autogen.sh"
+        run "./configure --prefix=/usr"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+}

@@ -8,6 +8,7 @@ package "meson" version "1.4.1" {
     }
 
     install {
-        run "python -m pip install --no-build-isolation --root=$HELL_ROOT ."
+        run "install -Dm755 meson.py $HELL_ROOT/usr/bin/meson"
+        run "mkdir -p $HELL_ROOT/usr/lib/python3.12/site-packages && cp -a mesonbuild $HELL_ROOT/usr/lib/python3.12/site-packages/"
     }
 }

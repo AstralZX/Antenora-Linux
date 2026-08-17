@@ -12,6 +12,6 @@ package "pkgconf" version "2.2.0" {
     }
 
     post_install {
-        run "ln -sf pkgconf /usr/bin/pkg-config"
+        ln "pkgconf" "/usr/bin/pkg-config"
     }
 }

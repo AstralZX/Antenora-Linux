@@ -3,7 +3,7 @@ package "dbus" version "1.14.10" {
     source "https://dbus.freedesktop.org/releases/dbus/dbus-1.14.10.tar.xz"
 
     build {
-        run "./configure --prefix=/usr --sysconfdir=/etc --without-systemd"
+        run "./configure --prefix=/usr --sysconfdir=/etc --without-systemd --disable-tests --disable-modular-tests --disable-doxygen-docs --disable-xml-docs"
         run "make -j$HELL_JOBS"
     }
 

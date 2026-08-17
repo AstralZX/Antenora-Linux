@@ -1,6 +1,6 @@
-package "cmake" version "3.29.5" {
+package "cmake" version "3.31.6" {
     description "CMake - cross-platform build system"
-    source "https://github.com/Kitware/CMake/releases/download/v3.29.5/cmake-3.29.5.tar.gz"
+    source "https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6.tar.gz"
     depends "openssl" "ncurses"
 
     build {

@@ -48,14 +48,23 @@ func (d *Dante) Download(url, dest string) error {
 	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 		return err
 	}
+	tmp := dest + ".part"
 	fmt.Printf(":: Fetching %s\n", url)
-	cmd := exec.Command("wget", "-q", "--show-progress", "-O", dest, url)
+	cmd := exec.Command("wget", "-q", "--show-progress", "-O", tmp, url)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
+		os.Remove(tmp)
 		return fmt.Errorf("downloading %s: %w", url, err)
 	}
-	return nil
+	if fi, err := os.Stat(tmp); err != nil || fi.Size() == 0 {
+		os.Remove(tmp)
+		if err == nil {
+			err = fmt.Errorf("downloaded empty file")
+		}
+		return fmt.Errorf("downloading %s: %w", url, err)
+	}
+	return os.Rename(tmp, dest)
 }
 
 // extractArchive unpacks a (possibly gzip/bzip2-compressed) tar archive into
@@ -134,6 +143,9 @@ func (d *Dante) extractTarStream(r io.Reader, destDir string) (string, error) {
 				return "", err
 			}
 			out.Close()
+			if err := os.Chtimes(target, hdr.ModTime, hdr.ModTime); err != nil {
+				return "", err
+			}
 		case tar.TypeSymlink:
 			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 				return "", err
@@ -166,12 +178,26 @@ func (d *Dante) BuildFromSource(pi *PackageInfo, srcDir string) (string, error) 
 		return "", err
 	}
 	if pkg.Source == "" {
-		return "", fmt.Errorf("package %q has no source url", pi.Name)
+		stage := filepath.Join(srcDir, "stage")
+		if err := os.MkdirAll(stage, 0o755); err != nil {
+			return "", err
+		}
+		interp := hell.NewInterpreter(stage, "", d.Arch, d.Config.Root)
+		interp.Verbose = true
+		interp.BinaryAvailable = pi.BinaryURL != ""
+		interp.Setup(pkg, cfg.Jobs())
+		if err := interp.Exec(pkg.Install); err != nil {
+			return "", fmt.Errorf("%s install: %w", pi.Name, err)
+		}
+		if err := interp.Exec(pkg.PostInstall); err != nil {
+			return "", fmt.Errorf("%s post_install: %w", pi.Name, err)
+		}
+		return stage, nil
 	}
 
 	cacheDir := filepath.Join(cfg.CacheDir, "sources")
 	archive := filepath.Join(cacheDir, filepath.Base(pkg.Source))
-	if _, err := os.Stat(archive); err != nil {
+	if fi, err := os.Stat(archive); err != nil || fi.Size() == 0 {
 		if err := d.Download(pkg.Source, archive); err != nil {
 			return "", err
 		}
@@ -191,7 +217,7 @@ func (d *Dante) BuildFromSource(pi *PackageInfo, srcDir string) (string, error) 
 		return "", err
 	}
 
-	interp := hell.NewInterpreter(stage, extracted, d.Arch)
+	interp := hell.NewInterpreter(stage, extracted, d.Arch, d.Config.Root)
 	interp.Verbose = true
 	interp.BinaryAvailable = pi.BinaryURL != ""
 	interp.Setup(pkg, cfg.Jobs())

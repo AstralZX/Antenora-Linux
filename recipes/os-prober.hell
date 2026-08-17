@@ -7,6 +7,14 @@ package "os-prober" version "1.81" {
     }
 
     install {
-        run "make install DESTDIR=$HELL_ROOT"
+        mkdir "/usr/lib/os-prober"
+        run "install -Dm755 os-prober $HELL_ROOT/usr/lib/os-prober/os-prober"
+        run "install -Dm755 linux-boot-prober $HELL_ROOT/usr/lib/os-prober/linux-boot-prober"
+        run "install -Dm755 newns $HELL_ROOT/usr/lib/os-prober/newns"
+        run "install -Dm755 common.sh $HELL_ROOT/usr/lib/os-prober/common.sh"
+        run "cp -a os-probes $HELL_ROOT/usr/lib/os-prober/os-probes"
+        run "cp -a linux-boot-probes $HELL_ROOT/usr/lib/os-prober/linux-boot-probes"
+        ln "../lib/os-prober/os-prober" "/usr/bin/os-prober"
+        ln "../lib/os-prober/linux-boot-prober" "/usr/bin/linux-boot-prober"
     }
 }

@@ -1,0 +1,15 @@
+package "libedit" version "20240517-3.1" {
+    description "libedit - BSD editline library with ncursesw support"
+    source "https://thrysoee.dk/editline/libedit-20240517-3.1.tar.gz"
+    depends "ncurses"
+
+    build {
+        run "./configure --prefix=/usr --enable-widec --disable-examples"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+}

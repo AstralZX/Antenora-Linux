@@ -1,0 +1,18 @@
+package "libffi" version "3.4.6" {
+    description "libffi - Foreign Function Interface library"
+    source "https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz"
+
+    arch x86_64 {
+        cflags "-O2 -Wno-error=incompatible-pointer-types"
+    }
+
+    build {
+        run "./configure --prefix=/usr --disable-docs"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+}

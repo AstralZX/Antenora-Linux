@@ -1,7 +1,7 @@
 package "nftables" version "1.0.9" {
     description "nftables firewall - inbound blocked except SSH and ping"
     source "https://netfilter.org/projects/nftables/files/nftables-1.0.9.tar.xz"
-    depends "libmnl" "libnftnl"
+    depends "libmnl" "libnftnl" "libedit"
 
     build {
         run "./configure --prefix=/usr"
@@ -10,15 +10,7 @@ package "nftables" version "1.0.9" {
 
     install {
         run "make install DESTDIR=$HELL_ROOT"
-        cp "/usr/share/antenora/nftables/rules.nft" "$HELL_ROOT/etc/nftables.conf"
     }
 
-    post_install {
-        run "nft -f /etc/nftables.conf"
-    }
 
-    binary "https://cdn.antenora.org/packages/nftables-1.0.9-x86_64.db" {
-        sha256 "4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b"
-        size "890KB"
-    }
 }

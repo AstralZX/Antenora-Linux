@@ -72,9 +72,9 @@ func (d *Dante) binaryURLs(pi *PackageInfo) []string {
 	if pi.BinaryURL != "" {
 		out = append(out, pi.BinaryURL)
 	}
-	base := pi.Name + "-" + pi.Version + "-" + d.Arch + ".db"
+	base := pi.Name + "-" + pi.Version + "-" + d.Arch + ".tar.xz"
 	for _, m := range d.Mirrors() {
-		out = append(out, m+"/"+base)
+		out = append(out, m+"/"+pi.Name+"/"+base)
 	}
 	return out
 }
@@ -85,14 +85,26 @@ func (d *Dante) binaryURLs(pi *PackageInfo) []string {
 // source.
 func (d *Dante) InstallBinary(pi *PackageInfo, srcDir string) (string, error) {
 	cfg := d.Config
-	archive := filepath.Join(cfg.CacheDir, "packages", filepath.Base(pi.Name+"-"+pi.Version+"-"+d.Arch+".db"))
+	urls := d.binaryURLs(pi)
+	if len(urls) == 0 {
+		return "", fmt.Errorf("no binary url")
+	}
+	name := "binary.tar"
+	if pi.BinaryURL != "" {
+		if b := filepath.Base(pi.BinaryURL); b != "" && b != "." {
+			name = b
+		}
+	} else {
+		name = pi.Name + "-" + pi.Version + "-" + d.Arch + ".db"
+	}
+	archive := filepath.Join(cfg.CacheDir, "packages", name)
 	if err := os.MkdirAll(filepath.Dir(archive), 0o755); err != nil {
 		return "", err
 	}
 
 	var lastErr error
 	downloaded := false
-	for _, url := range d.binaryURLs(pi) {
+	for _, url := range urls {
 		if err := d.Download(url, archive); err != nil {
 			lastErr = err
 			continue
@@ -108,24 +120,43 @@ func (d *Dante) InstallBinary(pi *PackageInfo, srcDir string) (string, error) {
 		return "", err
 	}
 
-	sigURL := pi.BinarySigURL
-	if sigURL == "" {
-		sigURL = archive + ".sig"
-	}
-	sigFile := archive + ".sig"
-	if err := d.Download(sigURL, sigFile); err != nil {
-		return "", err
-	}
-	if err := d.verifySignature(archive, sigFile); err != nil {
-		return "", err
+	if pi.BinarySigURL != "" {
+		sigFile := archive + ".sig"
+		if err := d.Download(pi.BinarySigURL, sigFile); err != nil {
+			return "", err
+		}
+		if err := d.verifySignature(archive, sigFile); err != nil {
+			return "", err
+		}
 	}
 
-	stage := filepath.Join(srcDir, pi.Name, "stage")
-	if err := os.MkdirAll(stage, 0o755); err != nil {
+	unpack := filepath.Join(srcDir, pi.Name, "stage")
+	if err := os.MkdirAll(unpack, 0o755); err != nil {
 		return "", err
 	}
-	if _, err := d.extractArchive(archive, stage); err != nil {
+	if _, err := d.extractArchive(archive, unpack); err != nil {
 		return "", err
 	}
-	return stage, nil
+	return applyStrip(unpack, pi.BinaryStrip)
+}
+
+// applyStrip returns the effective staging root after removing the top-level
+// wrapper directory from a binary archive. A strip of zero (or a tarball that
+// is already payload-rooted) leaves the tree untouched.
+func applyStrip(dir string, strip int) (string, error) {
+	if strip <= 0 {
+		return dir, nil
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return "", err
+	}
+	if len(entries) != 1 || !entries[0].IsDir() {
+		return dir, nil
+	}
+	inner := filepath.Join(dir, entries[0].Name())
+	if strip == 1 {
+		return inner, nil
+	}
+	return applyStrip(inner, strip-1)
 }

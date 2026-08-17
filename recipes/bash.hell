@@ -1,10 +1,10 @@
-package "bash" version "5.2.26" {
-    description "GNU Bash - the Bourne-again shell"
-    source "https://ftp.gnu.org/gnu/bash/bash-5.2.26.tar.gz"
+package "bash" version "5.2.32" {
+    description "GNU Bourne Again Shell"
+    source "https://ftp.gnu.org/gnu/bash/bash-5.2.32.tar.gz"
     depends "ncurses" "readline"
 
     build {
-        run "./configure --prefix=/usr --with-installed-readline"
+        run "CFLAGS=\"-std=gnu17 -O2\" ./configure --prefix=/usr --with-installed-readline"
         run "make -j$HELL_JOBS"
     }
 
@@ -13,6 +13,6 @@ package "bash" version "5.2.26" {
     }
 
     post_install {
-        run "ln -sf bash /usr/bin/sh"
+        ln "bash" "/usr/bin/sh"
     }
 }

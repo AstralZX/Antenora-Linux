@@ -5,6 +5,7 @@ package hell
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -54,6 +55,8 @@ type Binary struct {
 	URL    string
 	SHA256 string
 	Size   string
+	Strip  int
+	SigURL string
 }
 
 // Stmt is a single instruction or an if/else conditional block.
@@ -297,6 +300,21 @@ func (p *Parser) parseBinary() (*Binary, error) {
 		case "size":
 			p.advance()
 			if bin.Size, err = p.expectString(); err != nil {
+				return nil, err
+			}
+		case "strip":
+			p.advance()
+			if p.cur.Type != TokenIdent {
+				return nil, p.errf("expected integer for strip, got %s %q", p.cur.Type, p.cur.Lit)
+			}
+			bin.Strip, err = strconv.Atoi(p.cur.Lit)
+			if err != nil {
+				return nil, p.errf("invalid strip value %q", p.cur.Lit)
+			}
+			p.advance()
+		case "sig":
+			p.advance()
+			if bin.SigURL, err = p.expectString(); err != nil {
 				return nil, err
 			}
 		default:

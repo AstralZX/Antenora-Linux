@@ -1,0 +1,19 @@
+package "libidn2" version "2.3.7" {
+    description "libidn2 - internationalized domain names library"
+    source "https://ftp.gnu.org/gnu/libidn/libidn2-2.3.7.tar.gz"
+    depends "libunistring"
+
+    arch x86_64 {
+        cflags "-O2 -Wno-error=incompatible-pointer-types"
+    }
+
+    build {
+        run "./configure --prefix=/usr --disable-doc"
+        run "make -j$HELL_JOBS"
+    }
+
+    install {
+        run "make install DESTDIR=$HELL_ROOT"
+    }
+
+}

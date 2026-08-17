@@ -3,6 +3,7 @@ package "libtool" version "2.4.7" {
     source "https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz"
     depends "automake"
 
+    cflags "-O2 -std=gnu17 -pipe"
     build {
         run "./configure --prefix=/usr"
         run "make -j$HELL_JOBS"

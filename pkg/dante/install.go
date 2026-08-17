@@ -9,7 +9,11 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
+
+	"github.com/antenora/dante/pkg/hell"
 )
 
 // InstalledRecord is the on-disk record of an installed package.
@@ -103,6 +107,9 @@ func (d *Dante) installOne(name string, preferDur bool) error {
 		} else {
 			stage = s
 			fromBinary = true
+			if err := d.runPostInstall(pi, stage); err != nil {
+				return err
+			}
 		}
 	} else {
 		s, err := d.BuildFromSource(pi, srcDir)
@@ -116,6 +123,7 @@ func (d *Dante) installOne(name string, preferDur bool) error {
 	if err != nil {
 		return err
 	}
+	rewritePcPrefixes(d.Config.Root, files)
 	rec := &InstalledRecord{
 		Name:       pi.Name,
 		Version:    pi.Version,
@@ -129,6 +137,20 @@ func (d *Dante) installOne(name string, preferDur bool) error {
 	}
 	fmt.Printf(":: %s %s installed (%d files)\n", name, pi.Version, len(files))
 	return nil
+}
+
+// runPostInstall executes a package's post_install steps inside a staging
+// root, mirroring BuildFromSource for binary installs.
+func (d *Dante) runPostInstall(pi *PackageInfo, stage string) error {
+	pkg, err := d.ParseRecipe(pi.RecipePath)
+	if err != nil {
+		return err
+	}
+	interp := hell.NewInterpreter(stage, stage, d.Arch, d.Config.Root)
+	interp.Verbose = true
+	interp.BinaryAvailable = true
+	interp.Setup(pkg, d.Config.Jobs())
+	return interp.Exec(pkg.PostInstall)
 }
 
 // mergeStaging copies a staged install tree into root, returning the list of
@@ -161,6 +183,9 @@ func mergeStaging(stage, root string) ([]string, error) {
 			_ = os.Remove(target)
 			return os.Symlink(link, target)
 		default:
+			if strings.HasSuffix(rel, ".la") {
+				return nil
+			}
 			if err := copyFileContents(path, target, info.Mode()); err != nil {
 				return err
 			}
@@ -169,6 +194,36 @@ func mergeStaging(stage, root string) ([]string, error) {
 		return nil
 	})
 	return files, err
+}
+
+// rewritePcPrefixes points every installed pkg-config file at the sysroot so
+// downstream meson/autotools builds resolve -l<name> to the sysroot's
+// libraries instead of silently picking up host copies under /usr/lib.
+//
+// The pc layout is root=/usr, so the sysroot equivalent is <root>/usr: that
+// maps libdir/includedir/bindir to <root>/usr/{lib,include,bin}.
+func rewritePcPrefixes(root string, files []string) {
+	sysroot := filepath.Join(root, "usr")
+	prefixRe := regexp.MustCompile(`(?m)^prefix=\S+.*$`)
+	for _, rel := range files {
+		if !strings.HasSuffix(rel, ".pc") {
+			continue
+		}
+		path := filepath.Join(root, rel)
+		data, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		orig := string(data)
+		up := strings.ReplaceAll(orig, "/usr/", sysroot+"/")
+		up = prefixRe.ReplaceAllString(up, "prefix="+sysroot)
+		if up == orig {
+			continue
+		}
+		if err := os.WriteFile(path, []byte(up), 0o644); err != nil {
+			continue
+		}
+	}
 }
 
 func copyFileContents(src, dst string, mode os.FileMode) error {

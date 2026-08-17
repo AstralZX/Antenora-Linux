@@ -4,10 +4,10 @@ package "efibootmgr" version "18" {
     depends "efivar"
 
     build {
-        run "make -j$HELL_JOBS"
+        run "make EFIDIR=antenora ERRORS= -j$HELL_JOBS"
     }
 
     install {
-        run "make install DESTDIR=$HELL_ROOT"
+        run "make EFIDIR=antenora install DESTDIR=$HELL_ROOT"
     }
 }

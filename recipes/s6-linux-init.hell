@@ -4,7 +4,7 @@ package "s6-linux-init" version "1.1.2.1" {
     depends "s6" "execline" "skalibs"
 
     build {
-        run "./configure --prefix=/usr"
+        run "./configure --prefix=/usr --enable-shared --with-sysdeps=$HELL_SYSROOT/usr/lib/skalibs/sysdeps --with-include=$HELL_SYSROOT/usr/include --with-lib=$HELL_SYSROOT/usr/lib"
         run "make -j$HELL_JOBS"
     }
 

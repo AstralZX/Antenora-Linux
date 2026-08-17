@@ -3,9 +3,14 @@ package "util-linux" version "2.40.1" {
     source "https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.1.tar.xz"
     depends "ncurses" "zlib"
 
+    arch x86_64 {
+        cflags "-O2 -Wno-error=incompatible-pointer-types"
+    }
+
     build {
-        run "./configure --prefix=/usr"
-        run "make -j$HELL_JOBS"
+        run "./configure --prefix=/usr --without-systemd --without-python --disable-pylibmount --without-bash-completion-dir --disable-liblastlog2 --disable-wall --disable-makeinstall-chown"
+        run "sed -i '/^#define HAVE_SCHED_SETATTR 1$/d' config.h"
+        run "make -j$HELL_JOBS CFLAGS=\"$CFLAGS $CPPFLAGS\""
     }
 
     install {

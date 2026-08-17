@@ -3,12 +3,16 @@ package "elogind" version "255.5" {
     source "https://github.com/elogind/elogind/archive/refs/tags/v255.5.tar.gz"
     depends "dbus" "libudev-zero"
 
+    arch x86_64 {
+        cflags "-O2 -Wno-error=shift-overflow"
+    }
+
     build {
         run "meson setup build --prefix=/usr -Ddefault-hierarchy=hybrid"
         run "ninja -C build -j$HELL_JOBS"
     }
 
     install {
-        run "ninja -C build install --destdir $HELL_ROOT"
+        run "DESTDIR=$HELL_ROOT ninja -C build install"
     }
 }
