@@ -12,11 +12,21 @@ mkdir -p /dev/pts
 mount -t devpts devpts /dev/pts 2>/dev/null
 mount -t tmpfs tmpfs /run
 
+# --- load storage drivers ---------------------------------------------------
+for mod in sr_mod isofs ahci libahci ata_piix sd_mod loop; do
+    modprobe "$mod" 2>/dev/null
+done
+
+# --- wait for devices -------------------------------------------------------
+mdev -s 2>/dev/null
+sleep 2
+mdev -s 2>/dev/null
+
 mkdir -p /newroot /run/live /run/root /run/ovl/upper /run/ovl/work
 
 # --- locate the live medium -------------------------------------------------
 found=
-for dev in /dev/sr* /dev/sd* /dev/nvme* /dev/vd* /dev/mmcblk*; do
+for dev in /dev/sr0 /dev/sr1 /dev/sd* /dev/nvme* /dev/vd*; do
     [ -e "$dev" ] || continue
     if mount -o ro "$dev" /run/live 2>/dev/null; then
         if [ -f /run/live/antenora/rootfs.squashfs ]; then
@@ -28,15 +38,22 @@ for dev in /dev/sr* /dev/sd* /dev/nvme* /dev/vd* /dev/mmcblk*; do
 done
 
 if [ -z "$found" ]; then
-    echo "Antenora: live root not found. Dropping to a shell."
+    echo "Antenora: live root not found. Available block devices:"
+    ls /dev/sd* /dev/sr* /dev/vd* /dev/nvme* 2>/dev/null || echo "  (none)"
+    echo "Dropping to a shell."
     exec /bin/sh
 fi
 
 # --- mount the squashfs + writable overlay ----------------------------------
-mount -o ro,loop /run/live/antenora/rootfs.squashfs /run/root 2>/dev/null
+echo "Antenora: mounting squashfs from /run/live/antenora/rootfs.squashfs..."
+mount -o ro,loop /run/live/antenora/rootfs.squashfs /run/root
+echo "Antenora: squashfs mounted on /run/root"
+
+mkdir -p /run/ovl
 mount -t tmpfs -o size=50% tmpfs /run/ovl
+mkdir -p /run/ovl/upper /run/ovl/work
 mount -t overlay overlay \
     -o lowerdir=/run/root,upperdir=/run/ovl/upper,workdir=/run/ovl/work /newroot
+echo "Antenora: overlay root ready at /newroot"
 
-# --- hand off to s6-linux-init ----------------------------------------------
-exec switch_root /newroot /sbin/init
+exec switch_root /newroot /bin/sh

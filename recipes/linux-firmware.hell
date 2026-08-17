@@ -7,6 +7,6 @@ package "linux-firmware" version "20240610" {
     }
 
     install {
-        run "make install DESTDIR=$HELL_ROOT"
+        run "make install-nodedup DESTDIR=$HELL_ROOT"
     }
 }

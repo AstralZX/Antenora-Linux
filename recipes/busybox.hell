@@ -4,14 +4,13 @@ package "busybox" version "1.36.1" {
 
     build {
         run "make defconfig"
-        run "echo 'CONFIG_STATIC=y' >> .config"
-        run "echo 'CONFIG_ASH=y' >> .config"
-        run "echo 'CONFIG_SWITCH_ROOT=y' >> .config"
-        run "echo 'CONFIG_MOUNT=y' >> .config"
-        run "echo 'CONFIG_UMOUNT=y' >> .config"
+        run "sed -i 's/# CONFIG_STATIC is not set/CONFIG_STATIC=y/' .config"
+        run "sed -i 's/CONFIG_STATIC=n/CONFIG_STATIC=y/' .config"
+        run "grep -q 'CONFIG_STATIC=y' .config || echo 'CONFIG_STATIC=y' >> .config"
         run "sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config"
         run "sed -i 's/CONFIG_IPROUTE=y/# CONFIG_IPROUTE is not set/' .config"
-        run "yes '' | make oldconfig"
+        run "yes 'y' | make oldconfig"
+        run "grep CONFIG_STATIC .config"
         run "make -j$HELL_JOBS"
     }
 

@@ -16,16 +16,35 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
-mkdir -p "$STAGE"/{bin,proc,sys,dev,run,newroot,etc,lib}
+mkdir -p "$STAGE"/{bin,proc,sys,dev,run,newroot,etc,lib,lib64}
 
-# --- static busybox + applet symlinks --------------------------------------
+# --- busybox + applet symlinks ----------------------------------------------
 BUSYBOX="$SYSROOT/bin/busybox"
 [ -f "$BUSYBOX" ] || { echo "error: $BUSYBOX not found (build busybox first)"; exit 1; }
 cp "$BUSYBOX" "$STAGE/bin/busybox"
 chmod +x "$STAGE/bin/busybox"
-for a in sh mount umount switch_root modprobe mdev sleep cat echo mkdir switch_root; do
+for a in sh mount umount switch_root modprobe mdev sleep cat echo mkdir; do
     ln -sf busybox "$STAGE/bin/$a"
 done
+
+# --- shared libraries (busybox is dynamically linked) -----------------------
+if file "$BUSYBOX" | grep -q dynamically; then
+    LD_LINUX="$SYSROOT/lib64/ld-linux-x86-64.so.2"
+    if [ -f "$LD_LINUX" ]; then
+        cp "$LD_LINUX" "$STAGE/lib64/"
+        chmod +x "$STAGE/lib64/ld-linux-x86-64.so.2"
+    fi
+    for lib in $(ldd "$BUSYBOX" 2>/dev/null | awk '/=>/ {print $3}' | grep -v 'not found'); do
+        dir="/$(dirname "$lib")"
+        mkdir -p "$STAGE$dir"
+        cp "$lib" "$STAGE$lib"
+        # copy the soname symlink if it differs
+        soname=$(readelf -d "$lib" 2>/dev/null | grep 'NEEDED' | head -1 | awk '{print $NF}' | tr -d '[]')
+        if [ -n "$soname" ] && [ ! -e "$STAGE$dir/$soname" ]; then
+            ln -sf "$(basename "$lib")" "$STAGE$dir/$soname"
+        fi
+    done
+fi
 
 # --- live init -------------------------------------------------------------
 install -Dm755 "$ROOT/$INIT" "$STAGE/init"
